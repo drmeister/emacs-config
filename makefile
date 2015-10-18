@@ -5,4 +5,4 @@ setup:
 	ln -s ./ $(HOME)/.emacs.d
 
 submodules:
-	git submodules update
+	git submodule update
