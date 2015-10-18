@@ -5,4 +5,4 @@ setup:
 	ln -s ./ $(HOME)/.emacs.d
 
 submodules:
-	git submodule update
+	git submodule update --init ./slime
