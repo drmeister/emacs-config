@@ -45,7 +45,7 @@
 
 
 (message "Loading slime")
-(add-to-list 'load-path "~/.emacs.d/slime-dev")
+(add-to-list 'load-path "~/.emacs.d/slime")
 (require 'slime-autoloads)
 
 (load "~/.emacs.d/clang-format.el")
