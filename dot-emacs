@@ -1,0 +1,53 @@
+
+(message "Starting up")
+(add-to-list 'auto-save-file-name-transforms '("\\`.*/Dropbox/.*" "/tmp/" t))
+(add-to-list 'backup-directory-alist '("\\`.*/Dropbox/.*" . "/tmp/"))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   (quote
+    ((c-file-offsets
+      (innamespace . 0)
+      (substatement-open . 0)
+      (c . c-lineup-dont-change)
+      (inextern-lang . 0)
+      (comment-intro . c-lineup-dont-change)
+      (arglist-cont-nonempty . c-lineup-arglist)
+      (block-close . 0)
+      (statement-case-intro . ++)
+      (brace-list-intro . ++)
+      (cpp-define-intro . +))
+     (c-auto-align-backslashes)
+     (c-file-offsets
+      (innamespace . 0)
+      (substatement-open . 0)
+      (c . c-lineup-dont-change)
+      (inextern-lang . 0)
+      (comment-intro . c-lineup-dont-change)
+      (block-close . 0))
+     (c-file-offsets
+      (innamespace . 0)
+      (substatement-open . 0)
+      (c . c-lineup-dont-change)
+      (inextern-lang . 0)
+      (comment-intro . c-lineup-dont-change)
+      (arglist-cont-nonempty . llvm-c-lineup-arglist)
+      (block-close . 0))
+     (Syntax . ANSI-Common-Lisp)
+     (Base . 10)
+     (Package . C)
+     (Package . SYSTEM)
+     (Package . CLOS)
+     (Syntax . Common-Lisp)))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(put 'upcase-region 'disabled nil)
+
+(load-file "~/.emacs.d/init.el")

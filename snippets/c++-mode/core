@@ -1,0 +1,12 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: core
+# key: core
+# binding: direct-keybinding
+# --
+#define ARGS_core_$1 "($2)"
+#define DECL_core_$1 ""
+#define DOCS_core_$1 "$1"
+    	$3 core_$1($4)
+    {
+    $5
+    }

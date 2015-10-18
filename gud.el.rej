@@ -1,0 +1,230 @@
+***************
+*** 57,63 ****
+  
+  (defgroup gud nil
+    "The \"Grand Unified Debugger\" interface.
+- Supported debuggers include gdb, sdb, dbx, xdb, perldb,
+  pdb (Python), and jdb."
+    :group 'processes
+    :group 'tools)
+--- 57,63 ----
+  
+  (defgroup gud nil
+    "The \"Grand Unified Debugger\" interface.
++ Supported debuggers include lldb, gdb, sdb, dbx, xdb, perldb,
+  pdb (Python), and jdb."
+    :group 'processes
+    :group 'tools)
+***************
+*** 142,153 ****
+  			       (display-graphic-p)
+  			       (fboundp 'x-show-tip))
+  		  :visible (memq gud-minor-mode
+- 				'(gdbmi dbx sdb xdb pdb))
+  	          :button (:toggle . gud-tooltip-mode))
+      ([refresh]	"Refresh" . gud-refresh)
+      ([run]	menu-item "Run" gud-run
+                    :enable (not gud-running)
+- 		  :visible (memq gud-minor-mode '(gdbmi gdb dbx jdb)))
+      ([go]	menu-item (if (bound-and-true-p gdb-active-process)
+  			      "Continue" "Run") gud-go
+  		  :visible (and (eq gud-minor-mode 'gdbmi)
+--- 142,153 ----
+  			       (display-graphic-p)
+  			       (fboundp 'x-show-tip))
+  		  :visible (memq gud-minor-mode
++ 				'(lldb gdbmi dbx sdb xdb pdb))
+  	          :button (:toggle . gud-tooltip-mode))
+      ([refresh]	"Refresh" . gud-refresh)
+      ([run]	menu-item "Run" gud-run
+                    :enable (not gud-running)
++ 		  :visible (memq gud-minor-mode '(lldb gdbmi gdb dbx jdb)))
+      ([go]	menu-item (if (bound-and-true-p gdb-active-process)
+  			      "Continue" "Run") gud-go
+  		  :visible (and (eq gud-minor-mode 'gdbmi)
+***************
+*** 165,182 ****
+      ([tbreak]	menu-item "Temporary Breakpoint" gud-tbreak
+                    :enable (not gud-running)
+  		  :visible (memq gud-minor-mode
+- 				'(gdbmi gdb sdb xdb)))
+      ([break]	menu-item "Set Breakpoint" gud-break
+                    :enable (not gud-running)
+  		  :visible (gud-tool-bar-item-visible-no-fringe))
+      ([up]	menu-item "Up Stack" gud-up
+  		  :enable (not gud-running)
+  		  :visible (memq gud-minor-mode
+- 				 '(gdbmi gdb dbx xdb jdb pdb)))
+      ([down]	menu-item "Down Stack" gud-down
+  		  :enable (not gud-running)
+  		  :visible (memq gud-minor-mode
+- 				 '(gdbmi gdb dbx xdb jdb pdb)))
+      ([pp]	menu-item "Print S-expression" gud-pp
+                    :enable (and (not gud-running)
+  				  (bound-and-true-p gdb-active-process))
+--- 165,182 ----
+      ([tbreak]	menu-item "Temporary Breakpoint" gud-tbreak
+                    :enable (not gud-running)
+  		  :visible (memq gud-minor-mode
++ 				'(lldb gdbmi gdb sdb xdb)))
+      ([break]	menu-item "Set Breakpoint" gud-break
+                    :enable (not gud-running)
+  		  :visible (gud-tool-bar-item-visible-no-fringe))
+      ([up]	menu-item "Up Stack" gud-up
+  		  :enable (not gud-running)
+  		  :visible (memq gud-minor-mode
++ 				 '(lldb gdbmi gdb dbx xdb jdb pdb)))
+      ([down]	menu-item "Down Stack" gud-down
+  		  :enable (not gud-running)
+  		  :visible (memq gud-minor-mode
++ 				 '(lldb gdbmi gdb dbx xdb jdb pdb)))
+      ([pp]	menu-item "Print S-expression" gud-pp
+                    :enable (and (not gud-running)
+  				  (bound-and-true-p gdb-active-process))
+***************
+*** 188,194 ****
+  			      "Dump object"
+  			    "Print Dereference") gud-pstar
+                    :enable (not gud-running)
+- 		  :visible (memq gud-minor-mode '(gdbmi gdb jdb)))
+      ([print]	menu-item "Print Expression" gud-print
+                    :enable (not gud-running))
+      ([watch]	menu-item "Watch Expression" gud-watch
+--- 188,194 ----
+  			      "Dump object"
+  			    "Print Dereference") gud-pstar
+                    :enable (not gud-running)
++ 		  :visible (memq gud-minor-mode '(lldb gdbmi gdb jdb)))
+      ([print]	menu-item "Print Expression" gud-print
+                    :enable (not gud-running))
+      ([watch]	menu-item "Watch Expression" gud-watch
+***************
+*** 197,209 ****
+      ([finish]	menu-item "Finish Function" gud-finish
+                    :enable (not gud-running)
+  		  :visible (memq gud-minor-mode
+- 				 '(gdbmi gdb xdb jdb pdb)))
+      ([stepi]	menu-item "Step Instruction" gud-stepi
+                    :enable (not gud-running)
+- 		  :visible (memq gud-minor-mode '(gdbmi gdb dbx)))
+      ([nexti]	menu-item "Next Instruction" gud-nexti
+                    :enable (not gud-running)
+- 		  :visible (memq gud-minor-mode '(gdbmi gdb dbx)))
+      ([step]	menu-item "Step Line" gud-step
+                    :enable (not gud-running))
+      ([next]	menu-item "Next Line" gud-next
+--- 197,209 ----
+      ([finish]	menu-item "Finish Function" gud-finish
+                    :enable (not gud-running)
+  		  :visible (memq gud-minor-mode
++ 				 '(lldb gdbmi gdb xdb jdb pdb)))
+      ([stepi]	menu-item "Step Instruction" gud-stepi
+                    :enable (not gud-running)
++ 		  :visible (memq gud-minor-mode '(lldb gdbmi gdb dbx)))
+      ([nexti]	menu-item "Next Instruction" gud-nexti
+                    :enable (not gud-running)
++ 		  :visible (memq gud-minor-mode '(lldb gdbmi gdb dbx)))
+      ([step]	menu-item "Step Line" gud-step
+                    :enable (not gud-running))
+      ([next]	menu-item "Next Line" gud-next
+***************
+*** 358,363 ****
+    %l -- Number of current source line.
+    %e -- Text of the C lvalue or function-call expression surrounding point.
+    %a -- Text of the hexadecimal address surrounding point.
+    %p -- Prefix argument to the command (if any) as a number.
+    %c -- Fully qualified class name derived from the expression
+          surrounding point (jdb only).
+--- 358,364 ----
+    %l -- Number of current source line.
+    %e -- Text of the C lvalue or function-call expression surrounding point.
+    %a -- Text of the hexadecimal address surrounding point.
++   %b -- Text of the most recently created breakpoint id.
+    %p -- Prefix argument to the command (if any) as a number.
+    %c -- Fully qualified class name derived from the expression
+          surrounding point (jdb only).
+***************
+*** 2530,2536 ****
+     You start it up with one of the commands M-x gdb, M-x sdb, M-x dbx,
+  M-x perldb, M-x xdb, or M-x jdb.  Each entry point finishes by executing a
+  hook; `gdb-mode-hook', `sdb-mode-hook', `dbx-mode-hook',
+- `perldb-mode-hook', `xdb-mode-hook', or `jdb-mode-hook' respectively.
+  
+  After startup, the following commands are available in both the GUD
+  interaction buffer and any source buffer GUD visits due to a breakpoint stop
+--- 2662,2669 ----
+     You start it up with one of the commands M-x gdb, M-x sdb, M-x dbx,
+  M-x perldb, M-x xdb, or M-x jdb.  Each entry point finishes by executing a
+  hook; `gdb-mode-hook', `sdb-mode-hook', `dbx-mode-hook',
++ `perldb-mode-hook', `xdb-mode-hook', `jdb-mode-hook', or `lldb-mode-hook'
++ respectively.
+  
+  After startup, the following commands are available in both the GUD
+  interaction buffer and any source buffer GUD visits due to a breakpoint stop
+***************
+*** 2560,2566 ****
+  except that the breakpoint is temporary; that is, it is removed when
+  execution stops on it.
+  
+- Under gdb, dbx, and xdb, \\[gud-up] pops up through an enclosing stack
+  frame.  \\[gud-down] drops back down through one.
+  
+  If you are using gdb or xdb, \\[gud-finish] runs execution to the return from
+--- 2693,2699 ----
+  except that the breakpoint is temporary; that is, it is removed when
+  execution stops on it.
+  
++ Under gdb, dbx, xdb, and lldb, \\[gud-up] pops up through an enclosing stack
+  frame.  \\[gud-down] drops back down through one.
+  
+  If you are using gdb or xdb, \\[gud-finish] runs execution to the return from
+***************
+*** 2887,2893 ****
+  	result)
+      (while (and str
+  		(let ((case-fold-search nil))
+- 		  (string-match "\\([^%]*\\)%\\([adefFlpc]\\)" str)))
+        (let ((key (string-to-char (match-string 2 str)))
+  	    subst)
+  	(cond
+--- 3020,3026 ----
+  	result)
+      (while (and str
+  		(let ((case-fold-search nil))
++ 		  (string-match "\\([^%]*\\)%\\([abdefFlpc]\\)" str)))
+        (let ((key (string-to-char (match-string 2 str)))
+  	    subst)
+  	(cond
+***************
+*** 2915,2920 ****
+  	  (setq subst (gud-find-expr)))
+  	 ((eq key ?a)
+  	  (setq subst (gud-read-address)))
+  	 ((eq key ?c)
+  	  (setq subst
+                  (gud-find-class
+--- 3048,3055 ----
+  	  (setq subst (gud-find-expr)))
+  	 ((eq key ?a)
+  	  (setq subst (gud-read-address)))
++          ((eq key ?b)
++           (setq subst gud-breakpoint-id))
+  	 ((eq key ?c)
+  	  (setq subst
+                  (gud-find-class
+***************
+*** 3549,3554 ****
+  (defun gud-tooltip-print-command (expr)
+    "Return a suitable command to print the expression EXPR."
+    (pcase gud-minor-mode
+      (`gdbmi (concat "-data-evaluate-expression \"" expr "\""))
+      (`dbx (concat "print " expr))
+      ((or `xdb `pdb) (concat "p " expr))
+--- 3684,3690 ----
+  (defun gud-tooltip-print-command (expr)
+    "Return a suitable command to print the expression EXPR."
+    (pcase gud-minor-mode
++     (`lldb (concat "expression -o -- \"" expr "\""))
+      (`gdbmi (concat "-data-evaluate-expression \"" expr "\""))
+      (`dbx (concat "print " expr))
+      ((or `xdb `pdb) (concat "p " expr))
