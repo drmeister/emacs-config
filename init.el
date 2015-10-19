@@ -134,7 +134,7 @@
 (message "loading gud.el")
 (require 'gud)
 
-
+(add-to-list 'auto-mode-alist '("[Mm]akefile\\'" . makefile-mode))
 
 (message "Done")
 
