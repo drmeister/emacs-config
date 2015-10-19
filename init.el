@@ -42,6 +42,9 @@
  (let (evil-mode-map-alist)
    (call-interactively (key-binding (this-command-keys)))))
 
+(add-to-list 'load-path "~/.emacs.d/keys")
+(message "Loading meister-keys")
+(require 'meister-keys)
 
 
 (message "Loading slime")
@@ -56,7 +59,8 @@
 
 ;; Resize shell windows
 
-(add-hook 'makefile-mode-hook 'use-tabs-hook) (defun use-tabs-hook () (setq indent-tabs-mode t))
+(defun my-use-tabs-hook () (setq-local indent-tabs-mode t))
+(add-hook 'makefile-mode-hook 'my-use-tabs-hook)
 
 
 (defun comint-fix-window-size ()

@@ -1122,7 +1122,7 @@ If ARG is nil, don't display a message in the echo area.%s" name doc)
                  ;; an error would be raised. This strange situation
                  ;; should not arise in general and there should
                  ;; probably be a better way to handle this situation.
-                 (if deactivate-current-input-method-function
+                 (if inactivate-current-input-method-function
                      (deactivate-input-method)))
                (unless evil-no-display
                  (evil-refresh-cursor ',state)
