@@ -7,8 +7,8 @@
   `(define-key my-keys-minor-mode-map (kbd ,kbd) ,func))
 
 (message "defining keys")
-(define-my-key "C-f"         'forward-page)
-(define-my-key "C-b"         'backward-page)
+(define-my-key "C-f"         'evil-scroll-page-down)
+(define-my-key "C-b"         'evil-scroll-page-up)
 
 ;; Activate my-keys possibly everywhere
 (define-minor-mode my-keys-minor-mode
