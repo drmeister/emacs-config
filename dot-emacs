@@ -7,9 +7,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
+ '(custom-enabled-themes (quote (deeper-blue)))
  '(safe-local-variable-values
    (quote
-    ((c-file-offsets
+    ((Base . 8)
+     (Package . INTL)
+     (Package . make)
+     (Package . Maxima)
+     (c-file-offsets
       (innamespace . 0)
       (substatement-open . 0)
       (c . c-lineup-dont-change)
@@ -51,3 +58,4 @@
 (put 'upcase-region 'disabled nil)
 
 (load-file "~/.emacs.d/init.el")
+(put 'narrow-to-region 'disabled nil)
