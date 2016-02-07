@@ -49,6 +49,7 @@
 
 (message "Loading slime")
 (add-to-list 'load-path "~/.emacs.d/slime")
+(setq slime-contribs '(slime-fancy))
 (require 'slime-autoloads)
 
 (load "~/.emacs.d/clang-format.el")
