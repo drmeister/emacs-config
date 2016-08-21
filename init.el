@@ -1,4 +1,7 @@
 
+(when window-system (tool-bar-mode -1))
+(scroll-bar-mode -1)
+
 ;;(message "Loading evil mode")
 ;;(add-to-list 'load-path "~/.emacs.d/elpa/evil-20151012.728")
 ;;(require 'evil)
@@ -45,7 +48,7 @@
 ;(add-to-list 'load-path "~/.emacs.d/keys")
 ;(message "Loading meister-keys")
 ;(require 'meister-keys)
-
+(message "Starting up init.el")
 
 (message "Loading slime")
 (add-to-list 'load-path "~/.emacs.d/slime")
@@ -53,7 +56,8 @@
 (require 'slime-autoloads)
 
 (load "~/.emacs.d/clang-format.el")
-(global-set-key [C-M-tab] 'clang-format-region)
+;;;(define-key c++-mode-map [C-M-tab] 'clang-format-region)
+
 ;(setq c-basic-offset 2)
 ;(setq tab-width 2)
 ;(setq-default indent-tabs-mode nil)
@@ -64,6 +68,7 @@
 (add-hook 'makefile-mode-hook 'my-use-tabs-hook)
 
 
+(message "comint-fix-window-size")
 (defun comint-fix-window-size ()
   "Change process window size."
   (when (derived-mode-p 'comint-mode)
@@ -78,12 +83,12 @@
 
 (add-hook 'shell-mode-hook 'my-shell-mode-hook)
 
+(message "About to ns-right-option-modifier")
 
 ;; Set right-option key to super
 (setq ns-right-option-modifier 'super)
 
 (setq-default c-basic-offset 4)
-(setq dired-use-ls-dired nil)
 
 (message "Starting init.el")
 
@@ -141,5 +146,24 @@
 
 (add-to-list 'auto-mode-alist '("[Mm]akefile\\'" . makefile-mode))
 
-(message "Done")
+
+
+;;; Show tabs
+(message "Show tabs with separate face")
+(defface extra-whitespace-face
+  '((t (:background "pale green")))
+  "Used for tabs and such.")
+(defvar my-extra-keywords
+  '(("\t" . 'extra-whitespace-face)))
+(add-hook 'emacs-lisp-mode-hook
+	  (lambda () (font-lock-add-keywords nil my-extra-keywords)))
+(add-hook 'python-mode-hook
+	  (lambda () (font-lock-add-keywords nil my-extra-keywords)))
+(add-hook 'text-mode-hook
+	  (lambda () (font-lock-add-keywords nil my-extra-keywords)))
+
+(setq auto-mode-alist (cons '("\\wscript$" . python-mode) auto-mode-alist))
+
+
+(message "Done with init.el")
 

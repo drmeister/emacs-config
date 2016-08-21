@@ -12,7 +12,9 @@
  '(custom-enabled-themes (quote (light-blue)))
  '(safe-local-variable-values
    (quote
-    ((Base . 8)
+    ((encoding . utf-8)
+     (Package . LISP-UNIT)
+     (Base . 8)
      (Package . INTL)
      (Package . make)
      (Package . Maxima)
