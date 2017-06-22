@@ -1,7 +1,17 @@
+(setq ansi-color-for-comint-mode t)
+
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
 
 (when window-system (tool-bar-mode -1))
 (scroll-bar-mode -1)
+(setq line-number-display-limit-width 2000000)
 
+(add-hook 'c-mode-common-hook
+	  (lambda ()
+	    (when (derived-mode-p 'c-mode 'c++-mode)
+	      (ggtags-mode 1))))
+;;
 ;;(message "Loading evil mode")
 ;;(add-to-list 'load-path "~/.emacs.d/elpa/evil-20151012.728")
 ;;(require 'evil)
@@ -52,11 +62,30 @@
 
 (message "Loading slime")
 (add-to-list 'load-path "~/.emacs.d/slime")
-(setq slime-contribs '(slime-fancy))
+;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
+(setq slime-contribs '(slime-fancy slime-scratch))
+;(slime-setup '(slime-scratch slime-fancy slime-asdf))
 (require 'slime-autoloads)
+(setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
+(setq slime-fuzzy-explanation "")
+(setq inferior-lisp-program "~/Development/clasp/build/boehm/iclasp-boehm")
+(defun slime-eval-comment-last-expression (string)
+  "Evaluate sexp before point; print value, commented, into the current buffer"
+  (interactive (list (slime-last-expression)))
+  (insert "\n#| ")
+  (insert (cadr (slime-eval `(swank:eval-and-grab-output ,string))))
+  (insert " |#"))
+(global-set-key (kbd "C-M-S-x") 'slime-eval-comment-last-expression)
+
+
+(load "~/.emacs.d/git-link.el")
+(global-set-key (kbd "C-c g l") 'git-link)
 
 (load "~/.emacs.d/clang-format.el")
-;;;(define-key c++-mode-map [C-M-tab] 'clang-format-region)
+
+(defun my-cmode-hook ()
+  (local-set-key [C-M-tab] 'clang-format-region))
+(add-hook 'c-mode-common-hook 'my-cmode-hook)
 
 ;(setq c-basic-offset 2)
 ;(setq tab-width 2)
@@ -141,8 +170,8 @@
 (message "yas4")
 (yas-global-mode 1)
 
-(message "loading gud.el")
-(require 'gud)
+(message "loading lldb-gud.el")
+(load "~/.emacs.d/gud-lldb.el") ; (require 'gud-lldb2)
 
 (add-to-list 'auto-mode-alist '("[Mm]akefile\\'" . makefile-mode))
 

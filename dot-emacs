@@ -1,4 +1,11 @@
 
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (message "Starting up")
 (add-to-list 'auto-save-file-name-transforms '("\\`.*/Dropbox/.*" "/tmp/" t))
 (add-to-list 'backup-directory-alist '("\\`.*/Dropbox/.*" . "/tmp/"))
@@ -7,12 +14,25 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
  '(ansi-color-names-vector
    ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
- '(custom-enabled-themes (quote (light-blue)))
+ '(custom-enabled-themes (quote (dichromacy)))
+ '(exec-path
+   (quote
+    ("/usr/bin" "/bin" "/usr/sbin" "/sbin" "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9" "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9" "/Applications/Emacs.app/Contents/MacOS/libexec" "/Applications/Emacs.app/Contents/MacOS/bin" "/Users/meister/Development/externals-clasp/build/release/bin")))
  '(safe-local-variable-values
    (quote
-    ((encoding . utf-8)
+    ((Package . monitor)
+     (Package . HUNCHENTOOT)
+     (Package . CL-USER)
+     (Package . CL-FAD)
+     (Syntax . Common-lisp)
+     (Package . XREF)
+     (Package . CL-PPCRE)
+     (Syntax . COMMON-LISP)
+     (encoding . utf-8)
      (Package . LISP-UNIT)
      (Base . 8)
      (Package . INTL)

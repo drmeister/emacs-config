@@ -6,3 +6,13 @@ clasp_boehm_o -I -f cleavir
 top
 top
 man bash
+cd
+cd quicklisp/
+ls
+cd local-projects/cffi/
+git pull origin master
+git status
+git stash
+git pull origin master
+cd ..
+git clone https://github.com/dg1sbg/trivial-garbage.git
