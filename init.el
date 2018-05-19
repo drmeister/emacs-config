@@ -1,3 +1,40 @@
+;; Set up environment variables
+(message "Setting up path in init.el")
+(setenv "PATH"
+        (concat
+         (concat (getenv "HOME") "/Development/externals-clasp/build/release/bin:")
+         "/usr/local/bin:"
+         (concat (getenv "HOME") "/anaconda/bin:")    ; Need so that *compiliation* works like *shell*
+         (concat (getenv "HOME") "/miniconda2/bin:")  ; Need so that *compiliation* works like *shell*
+         "/usr/local/Cellar/bison/3.0.4/bin:"
+         "/usr/local/bin:"
+         "/usr/bin:"
+         "/bin:"
+         "/usr/sbin:"
+         "/sbin:"
+         "/opt/X11/bin:"
+         "/usr/texbin:"
+         "/Applications/CMake.app/Contents/bin:"
+         (concat (getenv "HOME") "/Development/amber/bin:")
+         "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:"
+         "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9:"
+         (getenv "PATH")))
+
+
+(add-to-list 'auto-mode-alist '("\\(/\\|\\`\\)[Mm]akefile" . makefile-mode))
+
+;;;(setenv "PATH" "/Users/meister/Development/externals-clasp/build/release/bin:/usr/local/bin:/Users/meister/anaconda/bin:/Users/meister/anaconda/bin:/Users/meister/miniconda2/bin://anaconda/bin:/Users/meister/anaconda/bin:/usr/local/Cellar/bison/3.0.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/texbin:/Applications/Wireshark.app/Contents/MacOS:/Users/meister/local/clasp/MacOS:/usr/texbin:/Applications/CMake.app/Contents/bin:/Users/meister/Development/amber/bin:/Users/meister/Development/externals-clasp/build/release/bin:/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9")
+
+(setenv "CLASP_SBCL" "sbcl")
+(setenv "EXTERNALS_CLASP_DIR" "/Users/meister/Development/externals-clasp")
+(setenv "CANDO_LISP_SOURCE_DIR" "/Users/meister/Development/clasp/projects/cando/src")
+(setenv "CLASP_APP_DIR" "/Users/meister/.local/clasp")
+
+
+
+;; Custom binding for magit-status
+(global-set-key (kbd "C-c m") 'magit-status)
+
 (setq ansi-color-for-comint-mode t)
 
 (when (fboundp 'windmove-default-keybindings)
@@ -64,11 +101,17 @@
 (add-to-list 'load-path "~/.emacs.d/slime")
 ;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
 (setq slime-contribs '(slime-fancy slime-scratch))
-;(slime-setup '(slime-scratch slime-fancy slime-asdf))
+;;;(slime-setup '(slime-scratch slime-fancy slime-asdf))
+(slime-setup '(slime-fancy slime-tramp slime-indentation))
 (require 'slime-autoloads)
 (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 (setq slime-fuzzy-explanation "")
-(setq inferior-lisp-program "~/Development/clasp/build/boehm/iclasp-boehm")
+(setq slime-lisp-implementations '((ccando-mps ("~/Development/cando/build/mps/cclasp-mps" "-l" "app-fasl:cando.fasb"))
+                                   (icando-mps ("~/Development/cando/build/mps/iclasp-mps" "-l" "app-fasl:cando.fasb"))
+                                   (ccando-boehm ("~/Development/cando/build/boehm/cclasp-boehm" "-l" "app-fasl:cando.fasb"))
+                                   (icando-boehm ("~/Development/cando/build/boehm/iclasp-boehm" "-l" "app-fasl:cando.fasb"))
+                                   (sbcl ("/usr/local/bin/sbcl"))))
+                                               
 (defun slime-eval-comment-last-expression (string)
   "Evaluate sexp before point; print value, commented, into the current buffer"
   (interactive (list (slime-last-expression)))
@@ -89,7 +132,7 @@
 
 ;(setq c-basic-offset 2)
 ;(setq tab-width 2)
-;(setq-default indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil)
 
 ;; Resize shell windows
 
@@ -164,7 +207,7 @@
 (setq yas-snippet-dirs "~/.local/emacs/snippets")
 (message "yas2")
 (add-to-list 'load-path
-	     "~/.emacs.d/elpa/yasnippet-20141117.327")
+             "~/.emacs.d/elpa/yasnippet-20141117.327")
 (message "yas3")
 (require 'yasnippet)
 (message "yas4")
@@ -186,9 +229,13 @@
   '(("\t" . 'extra-whitespace-face)))
 (add-hook 'emacs-lisp-mode-hook
 	  (lambda () (font-lock-add-keywords nil my-extra-keywords)))
+(add-hook 'lisp-mode-hook
+	  (lambda () (font-lock-add-keywords nil my-extra-keywords)))
 (add-hook 'python-mode-hook
 	  (lambda () (font-lock-add-keywords nil my-extra-keywords)))
 (add-hook 'text-mode-hook
+	  (lambda () (font-lock-add-keywords nil my-extra-keywords)))
+(add-hook 'makefile-mode-hook
 	  (lambda () (font-lock-add-keywords nil my-extra-keywords)))
 
 (setq auto-mode-alist (cons '("\\wscript$" . python-mode) auto-mode-alist))
