@@ -106,12 +106,9 @@
 (slime-setup '(slime-fancy slime-tramp slime-indentation))
 (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 (setq slime-fuzzy-explanation "")
-(setq slime-lisp-implementations '((ccando-mps ("~/Development/cando/build/mps/cclasp-mps" "-l" "app-fasl:cando.fasb"))
-                                   (icando-mps ("~/Development/cando/build/mps/iclasp-mps" "-l" "app-fasl:cando.fasb"))
-                                   (ccando-boehm ("~/Development/cando/build/boehm/cclasp-boehm" "-l" "app-fasl:cando.fasb"))
-                                   (icando-boehm ("~/Development/cando/build/boehm/iclasp-boehm" "-l" "app-fasl:cando.fasb"))
-                                   (sbcl ("/usr/local/bin/sbcl"))))
-                                               
+;;; Get slime-lisp-implementations from .emacs
+
+
 (defun slime-eval-comment-last-expression (string)
   "Evaluate sexp before point; print value, commented, into the current buffer"
   (interactive (list (slime-last-expression)))
