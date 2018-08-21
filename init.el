@@ -1,25 +1,4 @@
 ;; Set up environment variables
-(message "Setting up path in init.el")
-(setenv "PATH"
-        (concat
-         (concat (getenv "HOME") "/Development/externals-clasp/build/release/bin:")
-         "/usr/local/bin:"
-         (concat (getenv "HOME") "/anaconda/bin:")    ; Need so that *compiliation* works like *shell*
-         (concat (getenv "HOME") "/miniconda2/bin:")  ; Need so that *compiliation* works like *shell*
-         "/usr/local/Cellar/bison/3.0.4/bin:"
-         "/usr/local/bin:"
-         "/usr/bin:"
-         "/bin:"
-         "/usr/sbin:"
-         "/sbin:"
-         "/opt/X11/bin:"
-         "/usr/texbin:"
-         "/Applications/CMake.app/Contents/bin:"
-         (concat (getenv "HOME") "/Development/amber/bin:")
-         "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:"
-         "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9:"
-         (getenv "PATH")))
-
 
 (add-to-list 'auto-mode-alist '("\\(/\\|\\`\\)[Mm]akefile" . makefile-mode))
 
