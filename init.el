@@ -9,10 +9,17 @@
 (setenv "CANDO_LISP_SOURCE_DIR" "/Users/meister/Development/clasp/projects/cando/src")
 (setenv "CLASP_APP_DIR" "/Users/meister/.local/clasp")
 
-
+(autoload 'folding-mode          "folding" "Folding mode" t)
+(autoload 'turn-off-folding-mode "folding" "Folding mode" t)
+(autoload 'turn-on-folding-mode  "folding" "Folding mode" t)
 
 ;; Custom binding for magit-status
 (global-set-key (kbd "C-c m") 'magit-status)
+
+;; key bindings for fold-dwim
+(global-set-key (kbd "<f7>")      'fold-dwim-toggle)
+(global-set-key (kbd "<M-f7>")    'fold-dwim-hide-all)
+(global-set-key (kbd "<S-M-f7>")  'fold-dwim-show-all)
 
 (setq ansi-color-for-comint-mode t)
 

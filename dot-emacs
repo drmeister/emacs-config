@@ -21,9 +21,10 @@
 
 
 (setenv "CLASP_SBCL" "sbcl")
-(setenv "EXTERNALS_CLASP_DIR" "/Users/meister/Development/externals-clasp")
-(setenv "CANDO_LISP_SOURCE_DIR" "/Users/meister/Development/clasp/projects/cando/src")
-(setenv "CLASP_APP_DIR" "/Users/meister/.local/clasp")
+(setenv "AMBERHOME" (concat (getenv "HOME") "/Development/amber18"))
+(setenv "EXTERNALS_CLASP_DIR" (concat (getenv "HOME") "/Development/externals-clasp"))
+(setenv "CANDO_LISP_SOURCE_DIR" (concat (getenv "HOME") "/Development/clasp/projects/cando/src"))
+(setenv "CLASP_APP_DIR" (concat (getenv "HOME") "/.local/clasp"))
 
 
 
@@ -52,10 +53,24 @@
  '(magit-pull-arguments nil)
  '(package-selected-packages
    (quote
-    (json-mode yasnippet slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format)))
+    (ztree fireplace folding fold-dwim json-mode yasnippet slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format)))
  '(safe-local-variable-values
    (quote
-    ((Package . CL-UNICODE)
+    ((Package . CLPYTHON\.APP\.REPL)
+     (Package . CLPYTHON\.PARSER)
+     (Readtable . PY-AST-USER-READTABLE)
+     (Package . CLPYTHON)
+     (readtable . py-user-readtable)
+     (package . clpython)
+     (Readtable . PY-USER-READTABLE)
+     (Package . CLPYTHON\.TEST)
+     (Package . CLPYTHON\.UTIL)
+     (Package . CL-INTERPOL)
+     (Package . CLIM-INTERNALS)
+     (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
+     (Lowercase . Yes)
+     (Package . XLIB)
+     (Package . CL-UNICODE)
      (whitespace-style quote
                        (face trailing empty tabs))
      (whitespace-action)
