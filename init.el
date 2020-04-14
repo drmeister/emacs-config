@@ -54,8 +54,7 @@
 (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 (setq slime-fuzzy-explanation "")
 ;;; Get slime-lisp-implementations from .emacs
-
-
+(global-set-key "\C-cs" 'slime-selector)
 
 (defun slime-eval-comment-last-expression (string)
   "Evaluate sexp before point; print value, commented, into the current buffer"
