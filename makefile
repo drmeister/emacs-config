@@ -4,5 +4,5 @@ all:
 	make setup
 
 setup:
-	ln -s `pwd`/dot-emacs $(HOME)/.emacs
+	ln -Fs `pwd`/dot-emacs $(HOME)/.emacs
 
