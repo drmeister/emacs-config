@@ -21,7 +21,7 @@
 
 
 (setenv "CLASP_SBCL" "sbcl")
-(setenv "AMBERHOME" (concat (getenv "HOME") "/Development/amber18"))
+;;(setenv "AMBERHOME" "/opt/amber")
 (setenv "EXTERNALS_CLASP_DIR" (concat (getenv "HOME") "/Development/externals-clasp"))
 (setenv "CANDO_LISP_SOURCE_DIR" (concat (getenv "HOME") "/Development/clasp/projects/cando/src"))
 (setenv "CLASP_APP_DIR" (concat (getenv "HOME") "/.local/clasp"))
