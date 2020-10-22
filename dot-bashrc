@@ -1,0 +1,11 @@
+
+
+export JUPYTER_PATH=$HOME/Library/Jupyter
+export CLASP_QUICKLISP_DIRECTORY="$HOME/quicklisp"
+export CLASP_QUICKLISP_HOMEDIR=1
+export CDG_CACHE_HOME=""
+export ASDF_OUTPUT_TRANSLATIONS=""
+export PJOBS=4
+export SLIME_HOME="~/.emacs.d/slime"
+export FLAME_GRAPH_HOME=$HOME/Development/FlameGraph
+export AMBERHOME=$HOME/Development/amber20
