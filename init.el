@@ -2,6 +2,8 @@
 ;; Configuration file
 ;; Set up environment variables
 
+(print "Starting init.el")
+
 (add-to-list 'auto-mode-alist '("\\(/\\|\\`\\)[Mm]akefile" . makefile-mode))
 
 ;;;(setenv "PATH" "/Users/meister/Development/externals-clasp/build/release/bin:/usr/local/bin:/Users/meister/anaconda/bin:/Users/meister/anaconda/bin:/Users/meister/miniconda2/bin://anaconda/bin:/Users/meister/anaconda/bin:/usr/local/Cellar/bison/3.0.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/texbin:/Applications/Wireshark.app/Contents/MacOS:/Users/meister/local/clasp/MacOS:/usr/texbin:/Applications/CMake.app/Contents/bin:/Users/meister/Development/amber/bin:/Users/meister/Development/externals-clasp/build/release/bin:/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9")
@@ -134,10 +136,6 @@
 
 
 
-;;
-;; inferior-lisp
-;;
-(global-set-key (kbd "M-RET") 'lisp-eval-defun)
 
 
 (message "Setting up yas-snippet")
@@ -150,8 +148,12 @@
 (message "yas4")
 (yas-global-mode 1)
 
-(message "loading lldb-gud.el")
-(load "~/.emacs.d/gud-lldb.el") ; (require 'gud-lldb2)
+(print "Testing code below")
+;;
+;; inferior-lisp
+;;
+(global-set-key (kbd "M-RET") 'lisp-eval-defun)
+
 
 (add-to-list 'auto-mode-alist '("[Mm]akefile\\'" . makefile-mode))
 
@@ -185,11 +187,9 @@
      (downcase
       (replace-regexp-in-string "\\([a-z]\\)\\([A-Z]\\)" "\\1 \\2" s)))
    "[^A-Za-z0-9]+"))
-
 (defun camelcase  (s) (mapconcat 'capitalize (split-name s) ""))
 (defun underscore (s) (mapconcat 'downcase   (split-name s) "_"))
 (defun dasherize  (s) (mapconcat 'downcase   (split-name s) "-"))
-
 (defun camelscore-word-at-point ()
   (interactive)
   (let* ((case-fold-search nil)
@@ -222,21 +222,21 @@
 ;; Add a cc-mode style for editing LLVM C and C++ code
 (c-add-style "llvm.org"
              '("gnu"
-	       (fill-column . 80)
-	       (c++-indent-level . 2)
-	       (c-basic-offset . 2)
-	       (indent-tabs-mode . nil)
-	       (c-offsets-alist . ((arglist-intro . ++)
-				   (innamespace . 0)
-				   (member-init-intro . ++)
-				   (statement-cont . llvm-lineup-statement)))))
+               (fill-column . 80)
+               (c++-indent-level . 2)
+               (c-basic-offset . 2)
+               (indent-tabs-mode . nil)
+               (c-offsets-alist . ((arglist-intro . ++)
+                                   (innamespace . 0)
+                                   (member-init-intro . ++)
+                                   (statement-cont . llvm-lineup-statement)))))
 
 ;; Files with "llvm" in their names will automatically be set to the
 ;; llvm.org coding style.
 (add-hook 'c-mode-common-hook
-	  (function
-	   (lambda nil 
-	     (c-set-style "llvm.org"))))
+          (function
+           (lambda nil 
+             (c-set-style "llvm.org"))))
 
 (defun do-org-show-all-inline-images ()
   (interactive)
@@ -250,6 +250,33 @@
 (message "Done with init.el")
 
 
+(print "End of bad region")
 
 
-
+;; (custom-set-variables
+;;  ;; custom-set-variables was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(safe-local-variable-values
+;;    '((c-file-offsets
+;;       (innamespace . 0)
+;;       (substatement-open . 0)
+;;       (c . c-lineup-dont-change)
+;;       (inextern-lang . 0)
+;;       (comment-intro . c-lineup-dont-change)
+;;       (arglist-cont-nonempty . c-lineup-arglist)
+;;       (block-close . 0)
+;;       (statement-case-intro . ++)
+;;       (brace-list-intro . ++)
+;;       (cpp-define-intro . +))
+;;      (c-auto-align-backslashes)
+;;      (whitespace-style quote
+;;                        (face trailing empty tabs))
+;;      (whitespace-action))))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  )
