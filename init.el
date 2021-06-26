@@ -21,7 +21,7 @@
 (require 'package) ;; You might already have this line
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/") t)
-(package-initialize) ;; You might already have this line
+;;(package-initialize) ;; You might already have this line
 
 
 
