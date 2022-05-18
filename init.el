@@ -4,6 +4,11 @@
 
 (print "Starting init.el")
 
+;; Fix annoying problem where my right thumb invokes <xterm-paste> on macOS trackpad
+;; Argh - I can't use this because it kills all pastes
+
+;(global-set-key (kbd "<xterm-paste>") 'redraw-display) 
+
 (add-to-list 'auto-mode-alist '("\\(/\\|\\`\\)[Mm]akefile" . makefile-mode))
 
 ;;;(setenv "PATH" "/Users/meister/Development/externals-clasp/build/release/bin:/usr/local/bin:/Users/meister/anaconda/bin:/Users/meister/anaconda/bin:/Users/meister/miniconda2/bin://anaconda/bin:/Users/meister/anaconda/bin:/usr/local/Cellar/bison/3.0.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/texbin:/Applications/Wireshark.app/Contents/MacOS:/Users/meister/local/clasp/MacOS:/usr/texbin:/Applications/CMake.app/Contents/bin:/Users/meister/Development/amber/bin:/Users/meister/Development/externals-clasp/build/release/bin:/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9")
@@ -30,6 +35,16 @@
 
 
 
+(defun make-buffer-sticky ()
+  "Make the current window always display this buffer."
+  (interactive)
+  (let* ((window (get-buffer-window (current-buffer)))
+         (dedicated (window-dedicated-p window)))
+    (if (not dedicated)
+        (face-remap-add-relative 'mode-line '(:background "#0000FF"))
+      (face-remap-add-relative 'mode-line '(:background "#FF0000")))
+    (set-window-dedicated-p window (not dedicated))))
+(global-set-key (kbd "C-c S") 'make-buffer-sticky)
 
 (setq ansi-color-for-comint-mode t)
 
@@ -66,6 +81,11 @@
   (insert " |#"))
 (global-set-key (kbd "C-M-S-x") 'slime-eval-comment-last-expression)
 
+;; ** Sticky windows
+(load "~/.emacs.d/sticky-windows.el")
+(global-set-key (kbd "C-x 0") 'sticky-window-delete-window)
+(global-set-key (kbd "C-x 1") 'sticky-window-delete-other-windows)
+(global-set-key (kbd "C-x 9") 'sticky-window-toggle-window-visible)
 
 ;; ** Git link
 (load "~/.emacs.d/git-link.el")
@@ -245,6 +265,12 @@
                 'do-org-show-all-inline-images)
 
 
+(require 'wgrep)
+(require 'wgrep-ag)
+(print "Changing configuration for ag")
+(require 'ag)
+(setq ag-highlight-search t      ag-group-matches nil)
+
 ;; ** end
 
 (message "Done with init.el")
@@ -280,3 +306,6 @@
 ;;  ;; Your init file should contain only one such instance.
 ;;  ;; If there is more than one, they won't work right.
 ;;  )
+
+
+
