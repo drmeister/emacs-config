@@ -146,6 +146,7 @@
   "Load a file in current user's configuration directory"
   (load-file (expand-file-name file user-init-dir)))
 
+(setq-default show-trailing-whitespace t)
 
 (show-paren-mode t)
 (global-set-key "\C-xp" (lambda () (interactive) (other-window -1)))  
@@ -272,6 +273,8 @@
 (setq ag-highlight-search t      ag-group-matches nil)
 
 ;; ** end
+
+(global-set-key (kbd "C-c a") 'ag-project-regexp)
 
 (message "Done with init.el")
 
