@@ -311,4 +311,5 @@
 ;;  )
 
 
+(add-to-list 'eshell-visual-subcommands '( "git" "log" "branch"))
 
