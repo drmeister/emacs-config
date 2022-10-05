@@ -4,6 +4,34 @@
 
 (print "Starting init.el")
 
+
+;;; Configure use-package
+;;;
+;;; package initialization
+
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("melpa" . "http://melpa.org/packages/")))
+
+(setq package-enable-at-startup nil)
+(package-initialize)
+
+;;; use-package macro bootstrapping
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+(setq-default use-package-always-ensure t)
+
+
+(use-package ag)
+(use-package magit)
+
+
+
+
+
 ;; Fix annoying problem where my right thumb invokes <xterm-paste> on macOS trackpad
 ;; Argh - I can't use this because it kills all pastes
 
