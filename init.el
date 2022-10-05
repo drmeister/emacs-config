@@ -272,14 +272,17 @@
 (require 'ag)
 (setq ag-highlight-search t      ag-group-matches nil)
 
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 ;; ** end
 
 (global-set-key (kbd "C-c a") 'ag-project-regexp)
 
+(set-face-background 'mode-line "Blue")
+
 (message "Done with init.el")
 
 
-(print "End of bad region")
 
 
 ;; (custom-set-variables
