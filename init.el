@@ -25,11 +25,14 @@
 
 (use-package cl-lib)
 (use-package ag)
+(use-package yasnippet)
 (use-package bind-key)
 (use-package wgrep)
 (use-package wgrep-ag)
 (use-package magit)
 (use-package slime)
+(use-package macrostep)
+;;;(use-package slime-autoloads)
 
 (setq byte-compile-warnings '(cl-functions))
 
@@ -93,7 +96,7 @@
 
 ;; ** Slime stuff
 (message "Loading slime")
-(add-to-list 'load-path "~/.emacs.d/slime")
+(add-to-list 'load-path "~/.emacs.d/elpa/slime-20221003.936")
 ;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
 ;(setq slime-contribs '(slime-fancy slime-scratch))
 ;;;(slime-setup '(slime-scratch slime-fancy slime-asdf))
@@ -191,14 +194,7 @@
 
 
 (message "Setting up yas-snippet")
-(setq yas-snippet-dirs "~/.local/emacs/snippets")
-(message "yas2")
-(add-to-list 'load-path
-             "~/.emacs.d/elpa/yasnippet-20141117.327")
-(message "yas3")
-(require 'yasnippet)
-(message "yas4")
-(yas-global-mode 1)
+(setq yas-snippet-dirs "~/.emacs.d/snippets")
 
 (print "Testing code below")
 ;;

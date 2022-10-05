@@ -1,42 +1,24 @@
 (message "Setting up path in init.el")
 (setenv "PATH"
         (concat
-         (concat (getenv "HOME") "/usr/local/Cellar/llvm/6.0.0/bin/")
          "/usr/local/bin:"
          (concat (getenv "HOME") "/anaconda/bin:")    ; Need so that *compiliation* works like *shell*
          (concat (getenv "HOME") "/miniconda2/bin:")  ; Need so that *compiliation* works like *shell*
          "/usr/local/Cellar/bison/3.0.4/bin:"
-         "/usr/local/bin:"
          "/usr/bin:"
          "/bin:"
          "/usr/sbin:"
          "/sbin:"
          "/opt/X11/bin:"
          "/usr/texbin:"
-         "/Applications/CMake.app/Contents/bin:"
          (concat (getenv "HOME") "/Development/amber/bin:")
-         "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:"
-         "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9:"
          (getenv "PATH")))
 
 
-(setenv "CLASP_SBCL" "sbcl")
-;;(setenv "AMBERHOME" "/opt/amber")
-(setenv "EXTERNALS_CLASP_DIR" (concat (getenv "HOME") "/Development/externals-clasp"))
-(setenv "CANDO_LISP_SOURCE_DIR" (concat (getenv "HOME") "/Development/clasp/projects/cando/src"))
-(setenv "CLASP_APP_DIR" (concat (getenv "HOME") "/.local/clasp"))
+(load-file "~/.emacs.d/init.el")
+(put 'narrow-to-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
 
-
-
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-;(package-initialize)
-
-(message "Starting up")
-(add-to-list 'auto-save-file-name-transforms '("\\`.*/Dropbox/.*" "/tmp/" t))
-(add-to-list 'backup-directory-alist '("\\`.*/Dropbox/.*" . "/tmp/"))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -136,9 +118,3 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-(put 'upcase-region 'disabled nil)
-
-(load-file "~/.emacs.d/init.el")
-(put 'narrow-to-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-
