@@ -29,6 +29,7 @@
 (use-package wgrep)
 (use-package wgrep-ag)
 (use-package magit)
+(use-package slime)
 
 (setq byte-compile-warnings '(cl-functions))
 
