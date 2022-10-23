@@ -1,6 +1,161 @@
 ;; Configuration file
 ;; Set up environment variables
 
+
+(print "Starting dot_emacs part")
+
+(if (file-exists-p "~/.emacs")
+    (error "The file ~/.emacs exists - remove it - we only use init.el to startup"))
+
+(message "Setting up path in init.el")
+(setenv "PATH"
+        (concat
+         (concat (getenv "HOME") "/usr/local/Cellar/llvm/6.0.0/bin/")
+         "/usr/local/bin:"
+         (concat (getenv "HOME") "/anaconda/bin:")    ; Need so that *compiliation* works like *shell*
+         (concat (getenv "HOME") "/miniconda2/bin:")  ; Need so that *compiliation* works like *shell*
+         "/usr/local/Cellar/bison/3.0.4/bin:"
+         "/usr/local/bin:"
+         "/usr/bin:"
+         "/bin:"
+         "/usr/sbin:"
+         "/sbin:"
+         "/opt/X11/bin:"
+         "/usr/texbin:"
+         "/Applications/CMake.app/Contents/bin:"
+         (concat (getenv "HOME") "/Development/amber/bin:")
+         "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:"
+         "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9:"
+         (getenv "PATH")))
+
+
+(setenv "CLASP_SBCL" "sbcl")
+;;(setenv "AMBERHOME" "/opt/amber")
+(setenv "EXTERNALS_CLASP_DIR" (concat (getenv "HOME") "/Development/externals-clasp"))
+(setenv "CANDO_LISP_SOURCE_DIR" (concat (getenv "HOME") "/Development/clasp/projects/cando/src"))
+(setenv "CLASP_APP_DIR" (concat (getenv "HOME") "/.local/clasp"))
+
+
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+;(package-initialize)
+
+(message "Starting up")
+(add-to-list 'auto-save-file-name-transforms '("\\`.*/Dropbox/.*" "/tmp/" t))
+(add-to-list 'backup-directory-alist '("\\`.*/Dropbox/.*" . "/tmp/"))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(ansi-color-names-vector
+   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
+ '(custom-enabled-themes '(leuven))
+ '(exec-path
+   '("/usr/bin" "/bin" "/usr/sbin" "/sbin" "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9" "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9" "/Applications/Emacs.app/Contents/MacOS/libexec" "/Applications/Emacs.app/Contents/MacOS/bin" "/Users/meister/Development/externals-clasp/build/release/bin"))
+ '(gdb-non-stop-setting nil)
+ '(magit-pull-arguments nil)
+ '(package-selected-packages
+   '(nhexl-mode use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode yasnippet slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+ '(safe-local-variable-values
+   '((package . puri)
+     (eval when
+           (fboundp 'c-toggle-comment-style)
+           (c-toggle-comment-style 1))
+     (eval c-set-offset 'innamespace 0)
+     (eval c-set-offset 'brace-list-open 0)
+     (Package . CLPYTHON\.APP\.REPL)
+     (Package . CLPYTHON\.PARSER)
+     (Readtable . PY-AST-USER-READTABLE)
+     (Package . CLPYTHON)
+     (readtable . py-user-readtable)
+     (package . clpython)
+     (Readtable . PY-USER-READTABLE)
+     (Package . CLPYTHON\.TEST)
+     (Package . CLPYTHON\.UTIL)
+     (Package . CL-INTERPOL)
+     (Package . CLIM-INTERNALS)
+     (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
+     (Lowercase . Yes)
+     (Package . XLIB)
+     (Package . CL-UNICODE)
+     (whitespace-style quote
+                       (face trailing empty tabs))
+     (whitespace-action)
+     (Package . CCL)
+     (Package RT :use "COMMON-LISP" :colon-mode :external)
+     (syntax . COMMON-LISP)
+     (Package . monitor)
+     (Package . HUNCHENTOOT)
+     (Package . CL-USER)
+     (Package . CL-FAD)
+     (Syntax . Common-lisp)
+     (Package . XREF)
+     (Package . CL-PPCRE)
+     (Syntax . COMMON-LISP)
+     (encoding . utf-8)
+     (Package . LISP-UNIT)
+     (Base . 8)
+     (Package . INTL)
+     (Package . make)
+     (Package . Maxima)
+     (c-file-offsets
+      (innamespace . 0)
+      (substatement-open . 0)
+      (c . c-lineup-dont-change)
+      (inextern-lang . 0)
+      (comment-intro . c-lineup-dont-change)
+      (arglist-cont-nonempty . c-lineup-arglist)
+      (block-close . 0)
+      (statement-case-intro . ++)
+      (brace-list-intro . ++)
+      (cpp-define-intro . +))
+     (c-auto-align-backslashes)
+     (c-file-offsets
+      (innamespace . 0)
+      (substatement-open . 0)
+      (c . c-lineup-dont-change)
+      (inextern-lang . 0)
+      (comment-intro . c-lineup-dont-change)
+      (block-close . 0))
+     (c-file-offsets
+      (innamespace . 0)
+      (substatement-open . 0)
+      (c . c-lineup-dont-change)
+      (inextern-lang . 0)
+      (comment-intro . c-lineup-dont-change)
+      (arglist-cont-nonempty . llvm-c-lineup-arglist)
+      (block-close . 0))
+     (Syntax . ANSI-Common-Lisp)
+     (Base . 10)
+     (Package . C)
+     (Package . SYSTEM)
+     (Package . CLOS)
+     (Syntax . Common-Lisp)))
+ '(show-paren-mode t)
+ '(tool-bar-mode nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(put 'upcase-region 'disabled nil)
+
+(put 'narrow-to-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
+
+
+
+
+
+
 (print "Starting init.el")
 
 ;;; Configure use-package
@@ -64,8 +219,9 @@
 
 
 
-;; ** Custom binding for magit-status
+;; ** Custom key bindings
 (global-set-key (kbd "C-c m") 'magit-status)
+(global-set-key (kbd "C-c f") 'clang-format-buffer)
 
 
 
