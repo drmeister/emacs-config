@@ -8,14 +8,17 @@
     (error "The file ~/.emacs exists - remove it - we only use init.el to startup"))
 
 (message "Setting up path in init.el")
+
+
+
 (setenv "PATH"
         (concat
          (concat (getenv "HOME") "/usr/local/Cellar/llvm/6.0.0/bin/")
          "/usr/local/bin:"
          (concat (getenv "HOME") "/anaconda/bin:")    ; Need so that *compiliation* works like *shell*
          (concat (getenv "HOME") "/miniconda2/bin:")  ; Need so that *compiliation* works like *shell*
-         "/usr/local/Cellar/bison/3.0.4/bin:"
          "/usr/local/bin:"
+         "/usr/local/opt/llvm@14/bin:"
          "/usr/bin:"
          "/bin:"
          "/usr/sbin:"
@@ -27,7 +30,6 @@
          "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:"
          "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9:"
          (getenv "PATH")))
-
 
 (setenv "CLASP_SBCL" "sbcl")
 ;;(setenv "AMBERHOME" "/opt/amber")
@@ -56,8 +58,6 @@
  '(ansi-color-names-vector
    ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
  '(custom-enabled-themes '(leuven))
- '(exec-path
-   '("/usr/bin" "/bin" "/usr/sbin" "/sbin" "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9" "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9" "/Applications/Emacs.app/Contents/MacOS/libexec" "/Applications/Emacs.app/Contents/MacOS/bin" "/Users/meister/Development/externals-clasp/build/release/bin"))
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
@@ -524,8 +524,6 @@
  '(ansi-color-names-vector
    ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
  '(custom-enabled-themes '(dichromacy))
- '(exec-path
-   '("/usr/bin" "/bin" "/usr/sbin" "/sbin" "/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9" "/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9" "/Applications/Emacs.app/Contents/MacOS/libexec" "/Applications/Emacs.app/Contents/MacOS/bin" "/Users/meister/Development/externals-clasp/build/release/bin"))
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
@@ -615,3 +613,15 @@
  )
 (put 'upcase-region 'disabled nil)
 
+
+(setq exec-path (append exec-path '("/usr/local/opt/llvm@14/bin/")))
+
+
+
+;; Locked mode
+(global-set-key (kbd "C-c l") 'locked-buffer-mode)
+
+(define-minor-mode locked-buffer-mode
+  "Make the current window always display this buffer."
+  nil " locked" nil
+  (set-window-dedicated-p (selected-window) locked-buffer-mode))
