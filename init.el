@@ -61,9 +61,10 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(nhexl-mode use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode yasnippet slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode yasnippet slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
-   '((package . puri)
+   '((Package . ASDF)
+     (package . puri)
      (eval when
            (fboundp 'c-toggle-comment-style)
            (c-toggle-comment-style 1))
@@ -187,7 +188,7 @@
 (use-package magit)
 (use-package slime)
 (use-package macrostep)
-;;;(use-package slime-autoloads)
+(use-package git-timemachine)
 
 (setq byte-compile-warnings '(cl-functions))
 
@@ -252,16 +253,19 @@
 
 ;; ** Slime stuff
 (message "Loading slime")
-(add-to-list 'load-path "~/.emacs.d/elpa/slime-20221003.936")
-;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
-;(setq slime-contribs '(slime-fancy slime-scratch))
-;;;(slime-setup '(slime-scratch slime-fancy slime-asdf))
-(require 'slime-autoloads)
-(slime-setup '(slime-fancy slime-tramp slime-indentation))
-(setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-(setq slime-fuzzy-explanation "")
+(when nil
+  (add-to-list 'load-path
+               "~/.emacs.d/elpa/slime-20230131.1950")
+  ;;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
+  ;;(setq slime-contribs '(slime-fancy slime-scratch))
+  (slime-setup '(slime-scratch slime-fancy slime-asdf))
+  (require 'slime-autoloads)
+  (slime-setup '(slime-fancy slime-tramp slime-indentation))
+  (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
+  (setq slime-fuzzy-explanation "")
 ;;; Get slime-lisp-implementations from .emacs
-(global-set-key "\C-cs" 'slime-selector)
+  (global-set-key "\C-cs" 'slime-selector)
+  )
 
 (defun slime-eval-comment-last-expression (string)
   "Evaluate sexp before point; print value, commented, into the current buffer"
@@ -514,103 +518,10 @@
 (message "Starting up")
 (add-to-list 'auto-save-file-name-transforms '("\\`.*/Dropbox/.*" "/tmp/" t))
 (add-to-list 'backup-directory-alist '("\\`.*/Dropbox/.*" . "/tmp/"))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
- '(ansi-color-names-vector
-   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
- '(custom-enabled-themes '(dichromacy))
- '(gdb-non-stop-setting nil)
- '(magit-pull-arguments nil)
- '(package-selected-packages
-   '(use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode yasnippet slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
- '(safe-local-variable-values
-   '((package . puri)
-     (eval when
-           (fboundp 'c-toggle-comment-style)
-           (c-toggle-comment-style 1))
-     (eval c-set-offset 'innamespace 0)
-     (eval c-set-offset 'brace-list-open 0)
-     (Package . CLPYTHON\.APP\.REPL)
-     (Package . CLPYTHON\.PARSER)
-     (Readtable . PY-AST-USER-READTABLE)
-     (Package . CLPYTHON)
-     (readtable . py-user-readtable)
-     (package . clpython)
-     (Readtable . PY-USER-READTABLE)
-     (Package . CLPYTHON\.TEST)
-     (Package . CLPYTHON\.UTIL)
-     (Package . CL-INTERPOL)
-     (Package . CLIM-INTERNALS)
-     (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
-     (Lowercase . Yes)
-     (Package . XLIB)
-     (Package . CL-UNICODE)
-     (whitespace-style quote
-                       (face trailing empty tabs))
-     (whitespace-action)
-     (Package . CCL)
-     (Package RT :use "COMMON-LISP" :colon-mode :external)
-     (syntax . COMMON-LISP)
-     (Package . monitor)
-     (Package . HUNCHENTOOT)
-     (Package . CL-USER)
-     (Package . CL-FAD)
-     (Syntax . Common-lisp)
-     (Package . XREF)
-     (Package . CL-PPCRE)
-     (Syntax . COMMON-LISP)
-     (encoding . utf-8)
-     (Package . LISP-UNIT)
-     (Base . 8)
-     (Package . INTL)
-     (Package . make)
-     (Package . Maxima)
-     (c-file-offsets
-      (innamespace . 0)
-      (substatement-open . 0)
-      (c . c-lineup-dont-change)
-      (inextern-lang . 0)
-      (comment-intro . c-lineup-dont-change)
-      (arglist-cont-nonempty . c-lineup-arglist)
-      (block-close . 0)
-      (statement-case-intro . ++)
-      (brace-list-intro . ++)
-      (cpp-define-intro . +))
-     (c-auto-align-backslashes)
-     (c-file-offsets
-      (innamespace . 0)
-      (substatement-open . 0)
-      (c . c-lineup-dont-change)
-      (inextern-lang . 0)
-      (comment-intro . c-lineup-dont-change)
-      (block-close . 0))
-     (c-file-offsets
-      (innamespace . 0)
-      (substatement-open . 0)
-      (c . c-lineup-dont-change)
-      (inextern-lang . 0)
-      (comment-intro . c-lineup-dont-change)
-      (arglist-cont-nonempty . llvm-c-lineup-arglist)
-      (block-close . 0))
-     (Syntax . ANSI-Common-Lisp)
-     (Base . 10)
-     (Package . C)
-     (Package . SYSTEM)
-     (Package . CLOS)
-     (Syntax . Common-Lisp)))
- '(show-paren-mode t)
- '(tool-bar-mode nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
+
+
+
 (put 'upcase-region 'disabled nil)
 
 
