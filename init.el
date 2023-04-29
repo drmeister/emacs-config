@@ -185,9 +185,6 @@
 
 
 (print "Starting init.el")
-
-(evil-mode 1)
-
 ;;; Configure use-package
 ;;;
 ;;; package initialization
@@ -210,6 +207,7 @@
 
 (use-package cl-lib)
 (use-package ag)
+(use-package svg)
 (use-package yasnippet)
 (use-package bind-key)
 (use-package wgrep)
@@ -218,10 +216,11 @@
 (use-package slime)
 (use-package macrostep)
 (use-package git-timemachine)
+(use-package evil)
 
 (setq byte-compile-warnings '(cl-functions))
 
-
+(evil-mode 1)
 
 ;; Fix annoying problem where my right thumb invokes <xterm-paste> on macOS trackpad
 ;; Argh - I can't use this because it kills all pastes
