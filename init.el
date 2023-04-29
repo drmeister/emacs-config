@@ -61,9 +61,36 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode yasnippet slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(slime-autoloads
+     use-package
+     wgrep-ag
+     ag
+     command-log-mode
+     iedit
+     wgrep
+     clang-format+
+     git-wip-timemachine
+     realgud-lldb
+     ztree fireplace
+     folding
+     fold-dwim
+     json-mode
+;;;     yasnippet
+     slime
+     rainbow-blocks
+     paredit
+     magit
+     gnuplot
+     git-timemachine
+     ggtags
+     flylisp
+     evil
+     clang-format))
+
  '(safe-local-variable-values
-   '((Package . ASDF)
+   '((Package . TRIVIAL-GRAY-STREAMS)
+     (Syntax . ANSI-Common-lisp)
+     (Package . ASDF)
      (package . puri)
      (eval when
            (fboundp 'c-toggle-comment-style)
@@ -158,6 +185,8 @@
 
 
 (print "Starting init.el")
+
+(evil-mode 1)
 
 ;;; Configure use-package
 ;;;
@@ -266,6 +295,10 @@
 ;;; Get slime-lisp-implementations from .emacs
   (global-set-key "\C-cs" 'slime-selector)
   )
+
+(setq slime-lisp-implementations
+      '((cando ("~/Development/cando/build/boehmprecise/cando" "-f" "generate-bytecode" "--base"))
+        (sbcl ("sbcl" "sbcl"))))
 
 (defun slime-eval-comment-last-expression (string)
   "Evaluate sexp before point; print value, commented, into the current buffer"
