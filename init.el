@@ -221,6 +221,50 @@
 (setq byte-compile-warnings '(cl-functions))
 
 (evil-mode 1)
+(setq evil-want-fine-undo 'fine)
+
+(evil-global-set-key 'insert  (kbd "C-a") 'move-beginning-of-line)
+(evil-global-set-key 'replace (kbd "C-a") 'move-beginning-of-line)
+(evil-global-set-key 'normal  (kbd "C-a") 'move-beginning-of-line)
+(evil-global-set-key 'visual  (kbd "C-a") 'move-beginning-of-line)
+
+
+(evil-global-set-key 'insert  (kbd "C-e") 'move-end-of-line)
+(evil-global-set-key 'replace (kbd "C-e") 'move-end-of-line)
+(evil-global-set-key 'normal  (kbd "C-e") 'move-end-of-line)
+(evil-global-set-key 'visual  (kbd "C-e") 'move-end-of-line)
+
+(evil-global-set-key 'insert  (kbd "C-k") 'kill-line)
+(evil-global-set-key 'replace (kbd "C-k") 'kill-line)
+(evil-global-set-key 'normal  (kbd "C-k") 'kill-line)
+(evil-global-set-key 'visual  (kbd "C-k") 'kill-line)
+
+(evil-global-set-key 'insert  (kbd "C-d") 'evil-delete-char)
+(evil-global-set-key 'replace (kbd "C-d") 'evil-delete-char)
+(evil-global-set-key 'normal  (kbd "C-d") 'evil-delete-char)
+(evil-global-set-key 'visual  (kbd "C-d") 'evil-delete-char)
+
+(evil-global-set-key 'insert  (kbd "M-.") 'slime-edit-definition)
+(evil-global-set-key 'replace (kbd "M-.") 'slime-edit-definition)
+(evil-global-set-key 'normal  (kbd "M-.") 'slime-edit-definition)
+(evil-global-set-key 'visual  (kbd "M-.") 'slime-edit-definition)
+
+(evil-global-set-key 'insert  (kbd "C-r") 'isearch-backward)
+(evil-global-set-key 'replace (kbd "C-r") 'isearch-backward)
+(evil-global-set-key 'normal  (kbd "C-r") 'isearch-backward)
+(evil-global-set-key 'visual  (kbd "C-r") 'isearch-backward)
+
+(evil-global-set-key 'insert  (kbd "C-b") 'evil-scroll-page-up)
+(evil-global-set-key 'replace (kbd "C-b") 'evil-scroll-page-up)
+(evil-global-set-key 'normal  (kbd "C-b") 'evil-scroll-page-up)
+(evil-global-set-key 'visual  (kbd "C-b") 'evil-scroll-page-up)
+
+(evil-global-set-key 'insert  (kbd "C-f") 'evil-scroll-page-down)
+(evil-global-set-key 'replace (kbd "C-f") 'evil-scroll-page-down)
+(evil-global-set-key 'normal  (kbd "C-f") 'evil-scroll-page-down)
+(evil-global-set-key 'visual  (kbd "C-f") 'evil-scroll-page-down)
+
+(evil-global-set-key 'motion (kbd "g c") 'recompile)
 
 ;; Fix annoying problem where my right thumb invokes <xterm-paste> on macOS trackpad
 ;; Argh - I can't use this because it kills all pastes
