@@ -264,7 +264,26 @@
 (evil-global-set-key 'normal  (kbd "C-f") 'evil-scroll-page-down)
 (evil-global-set-key 'visual  (kbd "C-f") 'evil-scroll-page-down)
 
+
 (evil-global-set-key 'motion (kbd "g c") 'recompile)
+
+(evil-global-set-key 'motion (kbd "g j") 'windmove-down)
+(evil-global-set-key 'motion (kbd "g h") 'windmove-left)
+(evil-global-set-key 'motion (kbd "g k") 'windmove-up)
+(evil-global-set-key 'motion (kbd "g l") 'windmove-right)
+
+(setq evil-insert-state-cursor '("chartreuse3" bar))
+(setq evil-normal-state-cursor '("white" box))
+
+(defun my-evil-state-color ()
+  "Change mode-line color based on the current Evil state."
+  (cond ((evil-insert-state-p) (set-face-background 'mode-line "red"))
+        ((evil-normal-state-p) (set-face-background 'mode-line "green"))
+        ((evil-emacs-state-p) (set-face-background 'mode-line "magenta"))
+        (t (set-face-background 'mode-line "green"))))
+
+(add-hook 'post-command-hook 'my-evil-state-color)
+
 
 ;; Fix annoying problem where my right thumb invokes <xterm-paste> on macOS trackpad
 ;; Argh - I can't use this because it kills all pastes
