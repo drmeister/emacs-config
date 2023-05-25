@@ -57,36 +57,12 @@
    [default default default italic underline success warning error])
  '(ansi-color-names-vector
    ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
+ '(evil-want-keybinding nil)
  '(custom-enabled-themes '(leuven))
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(slime-autoloads
-     use-package
-     wgrep-ag
-     ag
-     command-log-mode
-     iedit
-     wgrep
-     clang-format+
-     git-wip-timemachine
-     realgud-lldb
-     ztree fireplace
-     folding
-     fold-dwim
-     json-mode
-;;;     yasnippet
-     slime
-     rainbow-blocks
-     paredit
-     magit
-     gnuplot
-     git-timemachine
-     ggtags
-     flylisp
-     evil
-     clang-format))
-
+   '(evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((Package . TRIVIAL-GRAY-STREAMS)
      (Syntax . ANSI-Common-lisp)
@@ -217,10 +193,13 @@
 (use-package macrostep)
 (use-package git-timemachine)
 (use-package evil)
+(use-package evil-collection)
 
 (setq byte-compile-warnings '(cl-functions))
 
 (evil-mode 1)
+(evil-collection-init)
+
 (setq evil-want-fine-undo 'fine)
 
 (evil-global-set-key 'insert  (kbd "C-a") 'move-beginning-of-line)
