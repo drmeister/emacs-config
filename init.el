@@ -243,6 +243,10 @@
 (evil-global-set-key 'normal  (kbd "C-f") 'evil-scroll-page-down)
 (evil-global-set-key 'visual  (kbd "C-f") 'evil-scroll-page-down)
 
+(evil-global-set-key 'insert  (kbd "C-y") 'yank)
+(evil-global-set-key 'replace (kbd "C-y") 'yank)
+(evil-global-set-key 'normal  (kbd "C-y") 'yank)
+(evil-global-set-key 'visual  (kbd "C-y") 'yank)
 
 (evil-global-set-key 'motion (kbd "g c") 'recompile)
 
