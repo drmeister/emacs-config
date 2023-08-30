@@ -57,8 +57,8 @@
    [default default default italic underline success warning error])
  '(ansi-color-names-vector
    ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
+ '(custom-enabled-themes '(wheatgrass))
  '(evil-want-keybinding nil)
- '(custom-enabled-themes '(leuven))
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
@@ -73,15 +73,15 @@
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
      (eval c-set-offset 'brace-list-open 0)
-     (Package . CLPYTHON\.APP\.REPL)
-     (Package . CLPYTHON\.PARSER)
+     (Package . CLPYTHON.APP.REPL)
+     (Package . CLPYTHON.PARSER)
      (Readtable . PY-AST-USER-READTABLE)
      (Package . CLPYTHON)
      (readtable . py-user-readtable)
      (package . clpython)
      (Readtable . PY-USER-READTABLE)
-     (Package . CLPYTHON\.TEST)
-     (Package . CLPYTHON\.UTIL)
+     (Package . CLPYTHON.TEST)
+     (Package . CLPYTHON.UTIL)
      (Package . CL-INTERPOL)
      (Package . CLIM-INTERNALS)
      (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
@@ -260,8 +260,8 @@
 
 (defun my-evil-state-color ()
   "Change mode-line color based on the current Evil state."
-  (cond ((evil-insert-state-p) (set-face-background 'mode-line "red"))
-        ((evil-normal-state-p) (set-face-background 'mode-line "green"))
+  (cond ((evil-insert-state-p) (set-face-background 'mode-line "green"))
+        ((evil-normal-state-p) (set-face-background 'mode-line "red"))
         ((evil-emacs-state-p) (set-face-background 'mode-line "magenta"))
         (t (set-face-background 'mode-line "green"))))
 
