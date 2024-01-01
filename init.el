@@ -10,10 +10,17 @@
 (message "Setting up path in init.el")
 
 
+;; ITERM2 MOUSE SUPPORT
+(unless window-system
+  (require 'mouse)
+  (xterm-mouse-mode t)
+  (defun track-mouse (e))
+  (setq mouse-sel-mode t)
+  )
+
 
 (setenv "PATH"
         (concat
-         (concat (getenv "HOME") "/usr/local/Cellar/llvm/6.0.0/bin/")
          "/usr/local/bin:"
          (concat (getenv "HOME") "/anaconda/bin:")    ; Need so that *compiliation* works like *shell*
          (concat (getenv "HOME") "/miniconda2/bin:")  ; Need so that *compiliation* works like *shell*
@@ -62,7 +69,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((Package . TRIVIAL-GRAY-STREAMS)
      (Syntax . ANSI-Common-lisp)
@@ -73,15 +80,15 @@
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
      (eval c-set-offset 'brace-list-open 0)
-     (Package . CLPYTHON.APP.REPL)
-     (Package . CLPYTHON.PARSER)
+     (Package . CLPYTHON\.APP\.REPL)
+     (Package . CLPYTHON\.PARSER)
      (Readtable . PY-AST-USER-READTABLE)
      (Package . CLPYTHON)
      (readtable . py-user-readtable)
      (package . clpython)
      (Readtable . PY-USER-READTABLE)
-     (Package . CLPYTHON.TEST)
-     (Package . CLPYTHON.UTIL)
+     (Package . CLPYTHON\.TEST)
+     (Package . CLPYTHON\.UTIL)
      (Package . CL-INTERPOL)
      (Package . CLIM-INTERNALS)
      (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
@@ -185,6 +192,7 @@
 (use-package ag)
 (use-package svg)
 (use-package yasnippet)
+(use-package free-keys)
 (use-package bind-key)
 (use-package wgrep)
 (use-package wgrep-ag)
@@ -194,6 +202,7 @@
 (use-package git-timemachine)
 (use-package evil)
 (use-package evil-collection)
+(use-package clipetty)
 
 (setq byte-compile-warnings '(cl-functions))
 
@@ -201,6 +210,15 @@
 (evil-collection-init)
 
 (setq evil-want-fine-undo 'fine)
+
+(defun pull-next-sexp-into-current ()
+  (interactive)
+  (delete-char 1)
+  (forward-sexp 1)
+  (insert ")")
+  (backward-char 1))
+
+;;;(evil-global-set-key 'insert  (kbd "C-M-i") 'pull-next-sexp-into-current)
 
 (evil-global-set-key 'insert  (kbd "C-a") 'move-beginning-of-line)
 (evil-global-set-key 'replace (kbd "C-a") 'move-beginning-of-line)
@@ -295,6 +313,7 @@
 
 
 ;; ** Custom key bindings
+(global-set-key (kbd "<f8>") 'slime-connect)
 (global-set-key (kbd "C-c m") 'magit-status)
 (global-set-key (kbd "C-c f") 'clang-format-buffer)
 
@@ -614,3 +633,6 @@
   "Make the current window always display this buffer."
   nil " locked" nil
   (set-window-dedicated-p (selected-window) locked-buffer-mode))
+
+;; Turn on automatic closing of parentheses and double quotes
+(electric-pair-mode t)
