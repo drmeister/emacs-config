@@ -2,6 +2,8 @@
 ;; Set up environment variables
 
 
+(winner-mode 1)
+
 (print "Starting dot_emacs part")
 
 (if (file-exists-p "~/.emacs")
@@ -69,7 +71,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((Package . TRIVIAL-GRAY-STREAMS)
      (Syntax . ANSI-Common-lisp)
@@ -203,6 +205,7 @@
 (use-package evil)
 (use-package evil-collection)
 (use-package clipetty)
+(use-package ace-window)
 
 (setq byte-compile-warnings '(cl-functions))
 
@@ -219,6 +222,21 @@
   (backward-char 1))
 
 ;;;(evil-global-set-key 'insert  (kbd "C-M-i") 'pull-next-sexp-into-current)
+
+(evil-global-set-key 'insert  (kbd "C-x o") 'ace-window)
+(evil-global-set-key 'replace (kbd "C-x o") 'ace-window)
+(evil-global-set-key 'normal  (kbd "C-x o") 'ace-window)
+(evil-global-set-key 'visual  (kbd "C-x o") 'ace-window)
+
+(evil-global-set-key 'insert  (kbd "C-x p") 'ace-window)
+(evil-global-set-key 'replace (kbd "C-x p") 'ace-window)
+(evil-global-set-key 'normal  (kbd "C-x p") 'ace-window)
+(evil-global-set-key 'visual  (kbd "C-x p") 'ace-window)
+
+(evil-global-set-key 'insert  (kbd "M-o") 'ace-window)
+(evil-global-set-key 'replace (kbd "M-o") 'ace-window)
+(evil-global-set-key 'normal  (kbd "M-o") 'ace-window)
+(evil-global-set-key 'visual  (kbd "M-o") 'ace-window)
 
 (evil-global-set-key 'insert  (kbd "C-a") 'move-beginning-of-line)
 (evil-global-set-key 'replace (kbd "C-a") 'move-beginning-of-line)
