@@ -221,6 +221,11 @@
   (insert ")")
   (backward-char 1))
 
+
+;;; Turn on dispatch always when M-o is activated
+
+(setq aw-dispatch-always t)
+
 ;;;(evil-global-set-key 'insert  (kbd "C-M-i") 'pull-next-sexp-into-current)
 
 (evil-global-set-key 'insert  (kbd "C-x o") 'ace-window)
@@ -374,13 +379,15 @@
   (slime-setup '(slime-fancy slime-tramp slime-indentation))
   (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
   (setq slime-fuzzy-explanation "")
-;;; Get slime-lisp-implementations from .emacs
+;; Get slime-lisp-implementations from .emacs
   (global-set-key "\C-cs" 'slime-selector)
   )
 
 (setq slime-lisp-implementations
-      '((cando ("~/Development/cando/build/boehmprecise/cando" "-f" "generate-bytecode" "--base"))
+      '((sc ("/home/meister/Development/cando/build/boehmprecise/cando" "--snapshot" "/home/meister/.local/share/cando_zeus-jupyter/cando.snapshot"))
         (sbcl ("sbcl" "sbcl"))))
+
+(setq slime-default-lisp 'sc)
 
 (defun slime-eval-comment-last-expression (string)
   "Evaluate sexp before point; print value, commented, into the current buffer"
