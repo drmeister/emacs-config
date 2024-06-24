@@ -71,7 +71,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((Package . TRIVIAL-GRAY-STREAMS)
      (Syntax . ANSI-Common-lisp)
@@ -205,6 +205,7 @@
 (use-package evil)
 (use-package evil-collection)
 (use-package clipetty)
+(use-package rust-mode)
 (use-package ace-window)
 
 (setq byte-compile-warnings '(cl-functions))
@@ -220,6 +221,37 @@
   (forward-sexp 1)
   (insert ")")
   (backward-char 1))
+
+
+
+(defun my-disable-visual-mode-in-shell ()
+  "Disable visual mode in *shell* buffer."
+  (when (and (string= (buffer-name) "*shell*")
+             (evil-visual-state-p))
+    (evil-exit-visual-state)))
+
+(add-hook 'evil-visual-state-entry-hook 'my-disable-visual-mode-in-shell)
+
+(defun my-evil-visual-state-advice (orig-fun &rest args)
+  "Prevent entering visual mode in *shell* buffer."
+  (unless (string= (buffer-name) "*shell*")
+    (apply orig-fun args)))
+
+(advice-add 'evil-visual-state :around #'my-evil-visual-state-advice)
+
+
+(defun my-disable-escape-key-in-shell ()
+  "Disable the Escape key in *shell* buffer."
+  (when (string= (buffer-name) "*shell*")
+    (define-key evil-normal-state-local-map [escape] 'ignore)
+    (define-key evil-insert-state-local-map [escape] 'ignore)
+    (define-key evil-visual-state-local-map [escape] 'ignore)))
+
+(add-hook 'shell-mode-hook 'my-disable-escape-key-in-shell)
+
+
+
+
 
 
 ;;; Turn on dispatch always when M-o is activated
@@ -373,10 +405,10 @@
   (add-to-list 'load-path
                "~/.emacs.d/elpa/slime-20230131.1950")
   ;;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
-  ;;(setq slime-contribs '(slime-fancy slime-scratch))
-  (slime-setup '(slime-scratch slime-fancy slime-asdf))
+  (setq slime-contribs '(slime-mrepl slime-fancy slime-scratch))
+  (slime-setup '(slime-mrepl slime-scratch slime-fancy slime-asdf))
   (require 'slime-autoloads)
-  (slime-setup '(slime-fancy slime-tramp slime-indentation))
+  (slime-setup '(slime-tramp slime-indentation))
   (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
   (setq slime-fuzzy-explanation "")
 ;; Get slime-lisp-implementations from .emacs
@@ -659,5 +691,26 @@
   nil " locked" nil
   (set-window-dedicated-p (selected-window) locked-buffer-mode))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Turn on automatic closing of parentheses and double quotes
 (electric-pair-mode t)
+
+;;
+;; I want M-( bound to a function that wraps parentheses around the next s-sexp
+;;
+(defun insert-parens-around-sexp ()
+  "Insert parentheses around the next s-expression."
+  (interactive)
+  (insert "(")
+  (save-excursion
+    (forward-sexp)
+    (insert ")")))
+
+(defun my-lisp-mode-customizations ()
+  "Customizations for Lisp mode."
+  (local-set-key (kbd "M-(") 'insert-parens-around-sexp))
+
+(add-hook 'lisp-mode-hook 'my-lisp-mode-customizations)
+
