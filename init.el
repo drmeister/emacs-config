@@ -71,7 +71,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((Package . TRIVIAL-GRAY-STREAMS)
      (Syntax . ANSI-Common-lisp)
@@ -82,15 +82,15 @@
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
      (eval c-set-offset 'brace-list-open 0)
-     (Package . CLPYTHON\.APP\.REPL)
-     (Package . CLPYTHON\.PARSER)
+     (Package . CLPYTHON.APP.REPL)
+     (Package . CLPYTHON.PARSER)
      (Readtable . PY-AST-USER-READTABLE)
      (Package . CLPYTHON)
      (readtable . py-user-readtable)
      (package . clpython)
      (Readtable . PY-USER-READTABLE)
-     (Package . CLPYTHON\.TEST)
-     (Package . CLPYTHON\.UTIL)
+     (Package . CLPYTHON.TEST)
+     (Package . CLPYTHON.UTIL)
      (Package . CL-INTERPOL)
      (Package . CLIM-INTERNALS)
      (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
@@ -207,6 +207,7 @@
 (use-package clipetty)
 (use-package rust-mode)
 (use-package ace-window)
+(use-package which-key)
 
 (setq byte-compile-warnings '(cl-functions))
 
@@ -259,6 +260,10 @@
 (setq aw-dispatch-always t)
 
 ;;;(evil-global-set-key 'insert  (kbd "C-M-i") 'pull-next-sexp-into-current)
+(evil-global-set-key 'insert  (kbd "C-c z") 'slime-repl)
+(evil-global-set-key 'replace (kbd "C-c z") 'slime-repl)
+(evil-global-set-key 'normal  (kbd "C-c z") 'slime-repl)
+(evil-global-set-key 'visual  (kbd "C-c z") 'slime-repl)
 
 (evil-global-set-key 'insert  (kbd "C-x o") 'ace-window)
 (evil-global-set-key 'replace (kbd "C-x o") 'ace-window)
@@ -331,14 +336,36 @@
 (setq evil-insert-state-cursor '("chartreuse3" bar))
 (setq evil-normal-state-cursor '("white" box))
 
+
 (defun my-evil-state-color ()
   "Change mode-line color based on the current Evil state."
-  (cond ((evil-insert-state-p) (set-face-background 'mode-line "green"))
-        ((evil-normal-state-p) (set-face-background 'mode-line "red"))
-        ((evil-emacs-state-p) (set-face-background 'mode-line "magenta"))
+  (cond ((evil-insert-state-p) (progn
+                                 (set-background-color "#001000")
+                                 (set-face-background 'mode-line "green")
+                                 ))
+         ((evil-normal-state-p) (progn
+                                  (set-background-color "#200000")
+                                 (set-face-background 'mode-line "red")
+                                 ))
+          ((evil-emacs-state-p) (progn
+                                 (set-face-background 'mode-line "magenta")))
         (t (set-face-background 'mode-line "green"))))
 
-(add-hook 'post-command-hook 'my-evil-state-color)
+
+(add-hook 'window-selection-change-functions (lambda (xxx)
+                                               (message "In window-selection-change-functions")
+                                               (my-evil-state-color)))
+(add-hook 'evil-normal-state-entry-hook (lambda ()
+                                          (message "In evil-normal-state-entry-hook")
+                                          (set-background-color "#200000")
+                                          (set-face-background 'mode-line "red")
+                                          ))
+(add-hook 'evil-insert-state-entry-hook (lambda ()
+                                          (message "In evil-insert-state-entry-hook")
+                                          (set-background-color "#001000")
+                                          (set-face-background 'mode-line "green")
+                                          ))
+
 
 
 ;; Fix annoying problem where my right thumb invokes <xterm-paste> on macOS trackpad
@@ -695,7 +722,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Turn on automatic closing of parentheses and double quotes
-(electric-pair-mode t)
+;;(electric-pair-mode t)
 
 ;;
 ;; I want M-( bound to a function that wraps parentheses around the next s-sexp
@@ -708,9 +735,19 @@
     (forward-sexp)
     (insert ")")))
 
+;;
+;; I want M-( bound to a function that wraps parentheses around the next s-sexp
+;;
+(defun insert-single-paren ()
+  "Insert a single paren"
+  (interactive)
+  (insert "("))
+
 (defun my-lisp-mode-customizations ()
   "Customizations for Lisp mode."
-  (local-set-key (kbd "M-(") 'insert-parens-around-sexp))
+  (local-set-key (kbd "M-(") 'insert-parens-around-sexp)
+  (local-set-key (kbd "C-(") 'insert-single-paren)
+)
 
 (add-hook 'lisp-mode-hook 'my-lisp-mode-customizations)
 
