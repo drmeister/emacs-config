@@ -48,6 +48,34 @@
 
 
 
+;; ** Slime stuff
+(message "Loading slime")
+(when t
+  (add-to-list 'load-path "~/.emacs.d/slime")
+  ;;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
+  (setq slime-contribs '(slime-mrepl slime-fancy slime-scratch))
+  (require 'slime-autoloads)
+  (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
+  (setq slime-fuzzy-explanation "")
+;; Get slime-lisp-implementations from .emacs
+  (global-set-key "\C-cs" 'slime-selector)
+  )
+
+(setq slime-lisp-implementations
+      '((sc ("/home/meister/Development/cando/build/boehmprecise/cando" "--snapshot" "/home/meister/.local/share/cando_zeus-jupyter/cando.snapshot"))
+        (sbcl ("sbcl" "sbcl"))))
+
+(setq slime-default-lisp 'sc)
+
+(defun slime-eval-comment-last-expression (string)
+  "Evaluate sexp before point; print value, commented, into the current buffer"
+  (interactive (list (slime-last-expression)))
+  (insert "\n#| ")
+  (insert (cadr (slime-eval `(swank:eval-and-grab-output ,string))))
+  (insert " |#"))
+(global-set-key (kbd "C-M-S-x") 'slime-eval-comment-last-expression)
+
+
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
@@ -71,9 +99,13 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
-   '((Package . TRIVIAL-GRAY-STREAMS)
+   '((package . rune-dom)
+     (Encoding . utf-8)
+     (readtable . runes)
+     (Package . CXML)
+     (Package . TRIVIAL-GRAY-STREAMS)
      (Syntax . ANSI-Common-lisp)
      (Package . ASDF)
      (package . puri)
@@ -199,7 +231,6 @@
 (use-package wgrep)
 (use-package wgrep-ag)
 (use-package magit)
-(use-package slime)
 (use-package macrostep)
 (use-package git-timemachine)
 (use-package evil)
@@ -340,29 +371,27 @@
 (defun my-evil-state-color ()
   "Change mode-line color based on the current Evil state."
   (cond ((evil-insert-state-p) (progn
-                                 (set-background-color "#001000")
+                                 ;;;(set-background-color "#001000")
                                  (set-face-background 'mode-line "green")
                                  ))
          ((evil-normal-state-p) (progn
-                                  (set-background-color "#200000")
-                                 (set-face-background 'mode-line "red")
-                                 ))
+                                  ;;;(set-background-color "#200000")
+                                  (set-face-background 'mode-line "red")
+                                  ))
           ((evil-emacs-state-p) (progn
-                                 (set-face-background 'mode-line "magenta")))
+                                  ;;;(set-face-background 'mode-line "magenta")
+                                  ))
         (t (set-face-background 'mode-line "green"))))
 
 
 (add-hook 'window-selection-change-functions (lambda (xxx)
-                                               (message "In window-selection-change-functions")
                                                (my-evil-state-color)))
 (add-hook 'evil-normal-state-entry-hook (lambda ()
-                                          (message "In evil-normal-state-entry-hook")
-                                          (set-background-color "#200000")
+                                         ;;; (set-background-color "#200000")
                                           (set-face-background 'mode-line "red")
                                           ))
 (add-hook 'evil-insert-state-entry-hook (lambda ()
-                                          (message "In evil-insert-state-entry-hook")
-                                          (set-background-color "#001000")
+                                          ;;; (set-background-color "#001000")
                                           (set-face-background 'mode-line "green")
                                           ))
 
@@ -425,37 +454,6 @@
           (lambda ()
             (when (derived-mode-p 'c-mode 'c++-mode)
               (ggtags-mode 1))))
-
-;; ** Slime stuff
-(message "Loading slime")
-(when nil
-  (add-to-list 'load-path
-               "~/.emacs.d/elpa/slime-20230131.1950")
-  ;;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
-  (setq slime-contribs '(slime-mrepl slime-fancy slime-scratch))
-  (slime-setup '(slime-mrepl slime-scratch slime-fancy slime-asdf))
-  (require 'slime-autoloads)
-  (slime-setup '(slime-tramp slime-indentation))
-  (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-  (setq slime-fuzzy-explanation "")
-;; Get slime-lisp-implementations from .emacs
-  (global-set-key "\C-cs" 'slime-selector)
-  )
-
-(setq slime-lisp-implementations
-      '((sc ("/home/meister/Development/cando/build/boehmprecise/cando" "--snapshot" "/home/meister/.local/share/cando_zeus-jupyter/cando.snapshot"))
-        (sbcl ("sbcl" "sbcl"))))
-
-(setq slime-default-lisp 'sc)
-
-(defun slime-eval-comment-last-expression (string)
-  "Evaluate sexp before point; print value, commented, into the current buffer"
-  (interactive (list (slime-last-expression)))
-  (insert "\n#| ")
-  (insert (cadr (slime-eval `(swank:eval-and-grab-output ,string))))
-  (insert " |#"))
-(global-set-key (kbd "C-M-S-x") 'slime-eval-comment-last-expression)
-
 ;; ** Sticky windows
 (load "~/.emacs.d/sticky-windows.el")
 (global-set-key (kbd "C-x 0") 'sticky-window-delete-window)
