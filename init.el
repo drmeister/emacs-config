@@ -23,11 +23,8 @@
 
 (setenv "PATH"
         (concat
+         (concat (getenv "HOME") "/Development/cando/build/boehmprecise:")    ; Need so that *compiliation* works like *shell*
          "/usr/local/bin:"
-         (concat (getenv "HOME") "/anaconda/bin:")    ; Need so that *compiliation* works like *shell*
-         (concat (getenv "HOME") "/miniconda2/bin:")  ; Need so that *compiliation* works like *shell*
-         "/usr/local/bin:"
-         "/usr/local/opt/llvm@14/bin:"
          "/usr/bin:"
          "/bin:"
          "/usr/sbin:"
@@ -99,7 +96,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((package . rune-dom)
      (Encoding . utf-8)
@@ -114,15 +111,15 @@
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
      (eval c-set-offset 'brace-list-open 0)
-     (Package . CLPYTHON.APP.REPL)
-     (Package . CLPYTHON.PARSER)
+     (Package . CLPYTHON\.APP\.REPL)
+     (Package . CLPYTHON\.PARSER)
      (Readtable . PY-AST-USER-READTABLE)
      (Package . CLPYTHON)
      (readtable . py-user-readtable)
      (package . clpython)
      (Readtable . PY-USER-READTABLE)
-     (Package . CLPYTHON.TEST)
-     (Package . CLPYTHON.UTIL)
+     (Package . CLPYTHON\.TEST)
+     (Package . CLPYTHON\.UTIL)
      (Package . CL-INTERPOL)
      (Package . CLIM-INTERNALS)
      (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
@@ -223,6 +220,7 @@
 
 
 (use-package cl-lib)
+(use-package w3m)
 (use-package ag)
 (use-package svg)
 (use-package yasnippet)
@@ -239,6 +237,14 @@
 (use-package rust-mode)
 (use-package ace-window)
 (use-package which-key)
+(use-package evil-terminal-cursor-changer)
+
+(load "~/.emacs.d/mgl-pax.el")
+(mgl-pax-hijack-slime-doc-keys)
+(global-set-key (kbd "C-.") 'mgl-pax-document)
+;;;(global-set-key (kbd "s-x t") 'mgl-pax-transcribe-last-expression)
+;;;(global-set-key (kbd "s-x r") 'mgl-pax-retranscribe-region)
+
 
 (setq byte-compile-warnings '(cl-functions))
 
@@ -367,6 +373,9 @@
 (setq evil-insert-state-cursor '("chartreuse3" bar))
 (setq evil-normal-state-cursor '("white" box))
 
+(unless (display-graphic-p)
+  (require 'evil-terminal-cursor-changer)
+  (evil-terminal-cursor-changer-activate))
 
 (defun my-evil-state-color ()
   "Change mode-line color based on the current Evil state."
