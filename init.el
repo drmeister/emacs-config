@@ -209,6 +209,9 @@
 (setq package-enable-at-startup nil)
 (package-initialize)
 
+(setq package-install-upgrade-built-in t)
+
+
 ;;; use-package macro bootstrapping
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
