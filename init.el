@@ -96,7 +96,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(w3m evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(w3m focus neotree symbol-overlay evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((package . rune-dom)
      (Encoding . utf-8)
@@ -221,7 +221,8 @@
   (require 'use-package))
 (setq-default use-package-always-ensure t)
 
-
+(use-package goto-chg)
+(use-package symbol-overlay)
 (use-package cl-lib)
 (use-package w3m)
 (use-package ag)
@@ -241,12 +242,43 @@
 (use-package ace-window)
 (use-package which-key)
 (use-package evil-terminal-cursor-changer)
+(use-package neotree)
 
-;(load "~/.emacs.d/mgl-pax.el")
-;(mgl-pax-hijack-slime-doc-keys)
-;(global-set-key (kbd "C-.") 'mgl-pax-document)
+(load "~/.emacs.d/mgl-pax.el")
+(mgl-pax-hijack-slime-doc-keys)
+(global-set-key [f11] 'mgl-pax-document)
 ;;;(global-set-key (kbd "s-x t") 'mgl-pax-transcribe-last-expression)
 ;;;(global-set-key (kbd "s-x r") 'mgl-pax-retranscribe-region)
+
+;;;
+;;; neotree bindings
+
+(global-set-key [f9] 'neotree-toggle)
+
+;;;
+;;; symbol overlay key bindings
+
+(require 'symbol-overlay)
+(global-set-key (kbd "M-i") 'symbol-overlay-put)
+(global-set-key (kbd "M-n") 'symbol-overlay-switch-forward)
+(global-set-key (kbd "M-p") 'symbol-overlay-switch-backward)
+(global-set-key (kbd "<f5>") 'symbol-overlay-mode)
+(global-set-key (kbd "<f6>") 'symbol-overlay-remove-all)
+(let ((map (make-sparse-keymap)))
+  (define-key map (kbd "<") 'symbol-overlay-jump-first)
+  (define-key map (kbd ">") 'symbol-overlay-jump-last)
+  (define-key map (kbd "?") 'symbol-overlay-map-help)
+  (define-key map (kbd "d") 'symbol-overlay-jump-to-definition)
+  (define-key map (kbd "e") 'symbol-overlay-echo-mark)
+  (define-key map (kbd "i") 'symbol-overlay-put)
+  (define-key map (kbd "n") 'symbol-overlay-jump-next)
+  (define-key map (kbd "p") 'symbol-overlay-jump-prev)
+  (define-key map (kbd "q") 'symbol-overlay-query-replace)
+  (define-key map (kbd "r") 'symbol-overlay-rename)
+  (define-key map (kbd "s") 'symbol-overlay-isearch-literally)
+  (define-key map (kbd "t") 'symbol-overlay-toggle-in-scope)
+  (define-key map (kbd "w") 'symbol-overlay-save-symbol)
+  (setq symbol-overlay-map map))
 
 
 (setq byte-compile-warnings '(cl-functions))
