@@ -1,7 +1,6 @@
 ;; Configuration file
 ;; Set up environment variables
 
-
 (winner-mode 1)
 
 (print "Starting dot_emacs part")
@@ -13,12 +12,12 @@
 
 
 ;; ITERM2 MOUSE SUPPORT
-(unless window-system
-  (require 'mouse)
-  (xterm-mouse-mode t)
-  (defun track-mouse (e))
-  (setq mouse-sel-mode t)
-  )
+;(unless window-system
+;  (require 'mouse)
+;  (xterm-mouse-mode t)
+;  (defun track-mouse (e))
+;  (setq mouse-sel-mode t)
+;  )
 
 
 (setenv "PATH"
@@ -39,8 +38,6 @@
 
 (setenv "CLASP_SBCL" "sbcl")
 ;;(setenv "AMBERHOME" "/opt/amber")
-(setenv "EXTERNALS_CLASP_DIR" (concat (getenv "HOME") "/Development/externals-clasp"))
-(setenv "CANDO_LISP_SOURCE_DIR" (concat (getenv "HOME") "/Development/clasp/projects/cando/src"))
 (setenv "CLASP_APP_DIR" (concat (getenv "HOME") "/.local/clasp"))
 
 
@@ -111,15 +108,15 @@
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
      (eval c-set-offset 'brace-list-open 0)
-     (Package . CLPYTHON.APP.REPL)
-     (Package . CLPYTHON.PARSER)
+     (Package . CLPYTHON\.APP\.REPL)
+     (Package . CLPYTHON\.PARSER)
      (Readtable . PY-AST-USER-READTABLE)
      (Package . CLPYTHON)
      (readtable . py-user-readtable)
      (package . clpython)
      (Readtable . PY-USER-READTABLE)
-     (Package . CLPYTHON.TEST)
-     (Package . CLPYTHON.UTIL)
+     (Package . CLPYTHON\.TEST)
+     (Package . CLPYTHON\.UTIL)
      (Package . CL-INTERPOL)
      (Package . CLIM-INTERNALS)
      (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
@@ -180,7 +177,8 @@
      (Package . CLOS)
      (Syntax . Common-Lisp)))
  '(show-paren-mode t)
- '(tool-bar-mode nil))
+ '(tool-bar-mode nil)
+ '(warning-suppress-types '((auto-save))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -244,9 +242,9 @@
 (use-package evil-terminal-cursor-changer)
 (use-package neotree)
 
-(load "~/.emacs.d/mgl-pax.el")
-(mgl-pax-hijack-slime-doc-keys)
-(global-set-key [f11] 'mgl-pax-document)
+;(load "~/.emacs.d/mgl-pax.el")
+;(mgl-pax-hijack-slime-doc-keys)
+;(global-set-key [f11] 'mgl-pax-document)
 ;;;(global-set-key (kbd "s-x t") 'mgl-pax-transcribe-last-expression)
 ;;;(global-set-key (kbd "s-x r") 'mgl-pax-retranscribe-region)
 
