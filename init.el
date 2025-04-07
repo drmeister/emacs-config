@@ -93,7 +93,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(w3m focus neotree symbol-overlay evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(focus neotree symbol-overlay evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((package . rune-dom)
      (Encoding . utf-8)
@@ -222,7 +222,6 @@
 (use-package goto-chg)
 (use-package symbol-overlay)
 (use-package cl-lib)
-(use-package w3m)
 (use-package ag)
 (use-package svg)
 (use-package yasnippet)
