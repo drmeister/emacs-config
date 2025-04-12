@@ -93,7 +93,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(focus neotree symbol-overlay evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(projectile w3m focus neotree symbol-overlay evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((package . rune-dom)
      (Encoding . utf-8)
@@ -201,8 +201,9 @@
 ;;;
 ;;; package initialization
 
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("melpa" . "http://melpa.org/packages/")))
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 
 (setq package-enable-at-startup nil)
 (package-initialize)
@@ -240,6 +241,14 @@
 (use-package which-key)
 (use-package evil-terminal-cursor-changer)
 (use-package neotree)
+(use-package projectile
+  :ensure t
+  :pin melpa-stable
+  :init (progn
+          (projectile-mode +1)
+          (setq projectile-project-search-path '("~/common-lisp/")))
+  :bind (:map projectile-mode-map
+              ("C-c p" . projectile-command-map)))
 
 ;(load "~/.emacs.d/mgl-pax.el")
 ;(mgl-pax-hijack-slime-doc-keys)
@@ -250,7 +259,7 @@
 ;;;
 ;;; neotree bindings
 
-(global-set-key [f9] 'neotree-toggle)
+(global-set-key [f8] 'neotree-toggle)
 
 ;;;
 ;;; symbol overlay key bindings
@@ -465,7 +474,7 @@
 
 
 ;; ** Custom key bindings
-(global-set-key (kbd "<f8>") 'slime-connect)
+(global-set-key (kbd "<f9>") 'slime-connect)
 (global-set-key (kbd "C-c m") 'magit-status)
 (global-set-key (kbd "C-c f") 'clang-format-buffer)
 
@@ -495,6 +504,16 @@
           (lambda ()
             (when (derived-mode-p 'c-mode 'c++-mode)
               (ggtags-mode 1))))
+
+(add-hook 'c++-mode-hook
+          (lambda ()
+            ;; Bind M-. in C++ mode to use ggtags-find-definition.
+            (evil-local-set-key 'insert  (kbd "M-.") 'ggtags-find-definition)
+            (evil-local-set-key 'replace (kbd "M-.") 'ggtags-find-definition)
+            (evil-local-set-key 'normal  (kbd "M-.") 'ggtags-find-definition)
+            (evil-local-set-key 'visual  (kbd "M-.") 'ggtags-find-definition)
+            ))
+
 ;; ** Sticky windows
 (load "~/.emacs.d/sticky-windows.el")
 (global-set-key (kbd "C-x 0") 'sticky-window-delete-window)
