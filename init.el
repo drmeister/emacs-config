@@ -71,12 +71,6 @@
 (global-set-key (kbd "C-M-S-x") 'slime-eval-comment-last-expression)
 
 
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-;(package-initialize)
-
 (message "Starting up")
 (add-to-list 'auto-save-file-name-transforms '("\\`.*/Dropbox/.*" "/tmp/" t))
 (add-to-list 'backup-directory-alist '("\\`.*/Dropbox/.*" . "/tmp/"))
@@ -198,19 +192,6 @@
 
 
 (print "Starting init.el")
-;;; Configure use-package
-;;;
-;;; package initialization
-
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-
-(setq package-enable-at-startup nil)
-(package-initialize)
-
-(setq package-install-upgrade-built-in t)
-
 
 ;;; use-package macro bootstrapping
 (unless (package-installed-p 'use-package)
@@ -219,6 +200,23 @@
 
 (eval-when-compile
   (require 'use-package))
+
+;;; Configure use-package
+;;;
+;;; package initialization
+
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+
+(package-initialize)
+
+(setq package-enable-at-startup nil)
+
+(setq package-install-upgrade-built-in t)
+
+
+
 (setq-default use-package-always-ensure t)
 
 (use-package goto-chg)
@@ -244,7 +242,7 @@
 (use-package neotree)
 (use-package projectile
   :ensure t
-  :pin melpa-stable
+;;  :pin melpa-stable
   :init (progn
           (projectile-mode +1)
           (setq projectile-project-search-path '("~/common-lisp/")))
@@ -462,15 +460,6 @@
 (setenv "CANDO_LISP_SOURCE_DIR" "/Users/meister/Development/clasp/projects/cando/src")
 (setenv "CLASP_APP_DIR" "/Users/meister/.local/clasp")
 
-
-;; ** MELPA stuff
-;; Set up the Melpa package repository
-(message "Setting up melpa")
-
-(require 'package) ;; You might already have this line
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
-;;(package-initialize) ;; You might already have this line
 
 
 
@@ -747,13 +736,6 @@
 (setenv "CANDO_LISP_SOURCE_DIR" (concat (getenv "HOME") "/Development/clasp/projects/cando/src"))
 (setenv "CLASP_APP_DIR" (concat (getenv "HOME") "/.local/clasp"))
 
-
-
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-;(package-initialize)
 
 (message "Starting up")
 (add-to-list 'auto-save-file-name-transforms '("\\`.*/Dropbox/.*" "/tmp/" t))
