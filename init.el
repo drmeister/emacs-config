@@ -55,11 +55,12 @@
   (global-set-key "\C-cs" 'slime-selector)
   )
 
+(setq inferior-lisp-program "cando") ;; falback default
 (setq slime-lisp-implementations
       '((sc ("/home/meister/Development/cando/build/boehmprecise/cando" "--snapshot" "/home/meister/.local/share/cando_zeus-jupyter/cando.snapshot"))
         (sbcl ("sbcl" "sbcl"))))
 
-(setq slime-default-lisp 'sc)
+(setq slime-default-lisp 'cando)
 
 (defun slime-eval-comment-last-expression (string)
   "Evaluate sexp before point; print value, commented, into the current buffer"
