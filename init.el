@@ -42,34 +42,6 @@
 
 
 
-;; ** Slime stuff
-(message "Loading slime")
-(when t
-  (add-to-list 'load-path "~/.emacs.d/slime")
-  ;;(setq slime-contribs '(slime-fancy slime-scratch slime-asdf))
-  (setq slime-contribs '(slime-mrepl slime-fancy slime-scratch))
-  (require 'slime-autoloads)
-  (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-  (setq slime-fuzzy-explanation "")
-;; Get slime-lisp-implementations from .emacs
-  (global-set-key "\C-cs" 'slime-selector)
-  )
-
-(setq inferior-lisp-program "cando") ;; falback default
-(setq slime-lisp-implementations
-      '((sc ("/home/meister/Development/cando/build/boehmprecise/cando" "--snapshot" "/home/meister/.local/share/cando_zeus-jupyter/cando.snapshot"))
-        (sbcl ("sbcl" "sbcl"))))
-
-(setq slime-default-lisp 'cando)
-
-(defun slime-eval-comment-last-expression (string)
-  "Evaluate sexp before point; print value, commented, into the current buffer"
-  (interactive (list (slime-last-expression)))
-  (insert "\n#| ")
-  (insert (cadr (slime-eval `(swank:eval-and-grab-output ,string))))
-  (insert " |#"))
-(global-set-key (kbd "C-M-S-x") 'slime-eval-comment-last-expression)
-
 
 (message "Starting up")
 (add-to-list 'auto-save-file-name-transforms '("\\`.*/Dropbox/.*" "/tmp/" t))
@@ -88,7 +60,7 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(projectile w3m focus neotree symbol-overlay evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode slime-repl-ansi-color ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection slime-autoloads use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode slime rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(projectile w3m focus neotree symbol-overlay evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
  '(safe-local-variable-values
    '((package . rune-dom)
      (Encoding . utf-8)
@@ -103,15 +75,15 @@
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
      (eval c-set-offset 'brace-list-open 0)
-     (Package . CLPYTHON\.APP\.REPL)
-     (Package . CLPYTHON\.PARSER)
+     (Package . CLPYTHON.APP.REPL)
+     (Package . CLPYTHON.PARSER)
      (Readtable . PY-AST-USER-READTABLE)
      (Package . CLPYTHON)
      (readtable . py-user-readtable)
      (package . clpython)
      (Readtable . PY-USER-READTABLE)
-     (Package . CLPYTHON\.TEST)
-     (Package . CLPYTHON\.UTIL)
+     (Package . CLPYTHON.TEST)
+     (Package . CLPYTHON.UTIL)
      (Package . CL-INTERPOL)
      (Package . CLIM-INTERNALS)
      (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
@@ -286,6 +258,24 @@
   (setq symbol-overlay-map map))
 
 
+
+;;; SLY support
+(when t
+  (add-to-list 'load-path "~/Development/sly")
+  (add-to-list 'load-path "~/Development/sly/contrib")
+  (require 'sly)
+  (print "loading contrib-autoloads")
+;;  (require 'contrib-autoloads)
+  (print "loading sly-fancy")
+  (require 'sly-fancy)
+;;  (require 'sly-stickers)
+  (add-hook 'sly-mode-hook #'sly-stickers-mode)
+  (setq inferior-lisp-program "~/Development/cando/build/boehmprecise/cando")
+  (add-to-list 'sly-contribs 'sly-fancy)
+  )
+
+
+
 (setq byte-compile-warnings '(cl-functions))
 
 (evil-mode 1)
@@ -337,11 +327,6 @@
 (setq aw-dispatch-always t)
 
 ;;;(evil-global-set-key 'insert  (kbd "C-M-i") 'pull-next-sexp-into-current)
-(evil-global-set-key 'insert  (kbd "C-c z") 'slime-repl)
-(evil-global-set-key 'replace (kbd "C-c z") 'slime-repl)
-(evil-global-set-key 'normal  (kbd "C-c z") 'slime-repl)
-(evil-global-set-key 'visual  (kbd "C-c z") 'slime-repl)
-
 (evil-global-set-key 'insert  (kbd "C-x o") 'ace-window)
 (evil-global-set-key 'replace (kbd "C-x o") 'ace-window)
 (evil-global-set-key 'normal  (kbd "C-x o") 'ace-window)
@@ -378,10 +363,10 @@
 (evil-global-set-key 'normal  (kbd "C-d") 'evil-delete-char)
 (evil-global-set-key 'visual  (kbd "C-d") 'evil-delete-char)
 
-(evil-global-set-key 'insert  (kbd "M-.") 'slime-edit-definition)
-(evil-global-set-key 'replace (kbd "M-.") 'slime-edit-definition)
-(evil-global-set-key 'normal  (kbd "M-.") 'slime-edit-definition)
-(evil-global-set-key 'visual  (kbd "M-.") 'slime-edit-definition)
+(evil-global-set-key 'insert  (kbd "M-.") 'sly-edit-definition)
+(evil-global-set-key 'replace (kbd "M-.") 'sly-edit-definition)
+(evil-global-set-key 'normal  (kbd "M-.") 'sly-edit-definition)
+(evil-global-set-key 'visual  (kbd "M-.") 'sly-edit-definition)
 
 (evil-global-set-key 'insert  (kbd "C-r") 'isearch-backward)
 (evil-global-set-key 'replace (kbd "C-r") 'isearch-backward)
@@ -453,8 +438,6 @@
 
 (add-to-list 'auto-mode-alist '("\\(/\\|\\`\\)[Mm]akefile" . makefile-mode))
 
-;;;(setenv "PATH" "/Users/meister/Development/externals-clasp/build/release/bin:/usr/local/bin:/Users/meister/anaconda/bin:/Users/meister/anaconda/bin:/Users/meister/miniconda2/bin://anaconda/bin:/Users/meister/anaconda/bin:/usr/local/Cellar/bison/3.0.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/texbin:/Applications/Wireshark.app/Contents/MacOS:/Users/meister/local/clasp/MacOS:/usr/texbin:/Applications/CMake.app/Contents/bin:/Users/meister/Development/amber/bin:/Users/meister/Development/externals-clasp/build/release/bin:/Applications/Emacs.app/Contents/MacOS/bin-x86_64-10_9:/Applications/Emacs.app/Contents/MacOS/libexec-x86_64-10_9")
-
 (setenv "CLASP_SBCL" "sbcl")
 (setenv "EXTERNALS_CLASP_DIR" "/Users/meister/Development/externals-clasp")
 (setenv "CANDO_LISP_SOURCE_DIR" "/Users/meister/Development/clasp/projects/cando/src")
@@ -464,7 +447,6 @@
 
 
 ;; ** Custom key bindings
-(global-set-key (kbd "<f9>") 'slime-connect)
 (global-set-key (kbd "C-c m") 'magit-status)
 (global-set-key (kbd "C-c f") 'clang-format-buffer)
 
