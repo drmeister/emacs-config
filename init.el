@@ -54,95 +54,66 @@
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
  '(ansi-color-names-vector
-   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
+   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9"
+    "white"])
  '(custom-enabled-themes '(wheatgrass))
  '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(projectile w3m focus neotree symbol-overlay evil-terminal-cursor-changer indent-bars which-key highlight-indentation highlight-indent-guides rust-mode ace-window clipetty free-keys load-theme-buffer-local color-theme-buffer-local evil-collection use-package wgrep-ag ag command-log-mode iedit wgrep clang-format+ git-wip-timemachine realgud-lldb ztree fireplace folding fold-dwim json-mode rainbow-blocks paredit magit gnuplot git-timemachine ggtags flylisp evil clang-format))
+   '(ace-window ag clang-format clang-format+ clipetty
+                color-theme-buffer-local command-log-mode evil
+                evil-collection evil-terminal-cursor-changer fireplace
+                flylisp focus fold-dwim folding free-keys ggtags
+                git-timemachine git-wip-timemachine gnuplot
+                highlight-indent-guides highlight-indentation iedit
+                indent-bars json-mode load-theme-buffer-local magit
+                neotree paredit projectile rainbow-blocks
+                rainbow-delimiters realgud-lldb rust-mode
+                symbol-overlay treesit-auto use-package w3m wgrep
+                wgrep-ag which-key ztree))
  '(safe-local-variable-values
-   '((package . rune-dom)
-     (Encoding . utf-8)
-     (readtable . runes)
-     (Package . CXML)
-     (Package . TRIVIAL-GRAY-STREAMS)
-     (Syntax . ANSI-Common-lisp)
-     (Package . ASDF)
-     (package . puri)
-     (eval when
-           (fboundp 'c-toggle-comment-style)
+   '((package . rune-dom) (Encoding . utf-8) (readtable . runes)
+     (Package . CXML) (Package . TRIVIAL-GRAY-STREAMS)
+     (Syntax . ANSI-Common-lisp) (Package . ASDF) (package . puri)
+     (eval when (fboundp 'c-toggle-comment-style)
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
      (eval c-set-offset 'brace-list-open 0)
-     (Package . CLPYTHON.APP.REPL)
-     (Package . CLPYTHON.PARSER)
-     (Readtable . PY-AST-USER-READTABLE)
-     (Package . CLPYTHON)
-     (readtable . py-user-readtable)
-     (package . clpython)
-     (Readtable . PY-USER-READTABLE)
-     (Package . CLPYTHON.TEST)
-     (Package . CLPYTHON.UTIL)
-     (Package . CL-INTERPOL)
+     (Package . CLPYTHON.APP.REPL) (Package . CLPYTHON.PARSER)
+     (Readtable . PY-AST-USER-READTABLE) (Package . CLPYTHON)
+     (readtable . py-user-readtable) (package . clpython)
+     (Readtable . PY-USER-READTABLE) (Package . CLPYTHON.TEST)
+     (Package . CLPYTHON.UTIL) (Package . CL-INTERPOL)
      (Package . CLIM-INTERNALS)
      (Package ITERATE :use "COMMON-LISP" :colon-mode :external)
-     (Lowercase . Yes)
-     (Package . XLIB)
-     (Package . CL-UNICODE)
-     (whitespace-style quote
-                       (face trailing empty tabs))
-     (whitespace-action)
-     (Package . CCL)
+     (Lowercase . Yes) (Package . XLIB) (Package . CL-UNICODE)
+     (whitespace-style quote (face trailing empty tabs))
+     (whitespace-action) (Package . CCL)
      (Package RT :use "COMMON-LISP" :colon-mode :external)
-     (syntax . COMMON-LISP)
-     (Package . monitor)
-     (Package . HUNCHENTOOT)
-     (Package . CL-USER)
-     (Package . CL-FAD)
-     (Syntax . Common-lisp)
-     (Package . XREF)
-     (Package . CL-PPCRE)
-     (Syntax . COMMON-LISP)
-     (encoding . utf-8)
-     (Package . LISP-UNIT)
-     (Base . 8)
-     (Package . INTL)
-     (Package . make)
-     (Package . Maxima)
-     (c-file-offsets
-      (innamespace . 0)
-      (substatement-open . 0)
-      (c . c-lineup-dont-change)
-      (inextern-lang . 0)
-      (comment-intro . c-lineup-dont-change)
-      (arglist-cont-nonempty . c-lineup-arglist)
-      (block-close . 0)
-      (statement-case-intro . ++)
-      (brace-list-intro . ++)
-      (cpp-define-intro . +))
+     (syntax . COMMON-LISP) (Package . monitor)
+     (Package . HUNCHENTOOT) (Package . CL-USER) (Package . CL-FAD)
+     (Syntax . Common-lisp) (Package . XREF) (Package . CL-PPCRE)
+     (Syntax . COMMON-LISP) (encoding . utf-8) (Package . LISP-UNIT)
+     (Base . 8) (Package . INTL) (Package . make) (Package . Maxima)
+     (c-file-offsets (innamespace . 0) (substatement-open . 0)
+                     (c . c-lineup-dont-change) (inextern-lang . 0)
+                     (comment-intro . c-lineup-dont-change)
+                     (arglist-cont-nonempty . c-lineup-arglist)
+                     (block-close . 0) (statement-case-intro . ++)
+                     (brace-list-intro . ++) (cpp-define-intro . +))
      (c-auto-align-backslashes)
-     (c-file-offsets
-      (innamespace . 0)
-      (substatement-open . 0)
-      (c . c-lineup-dont-change)
-      (inextern-lang . 0)
-      (comment-intro . c-lineup-dont-change)
-      (block-close . 0))
-     (c-file-offsets
-      (innamespace . 0)
-      (substatement-open . 0)
-      (c . c-lineup-dont-change)
-      (inextern-lang . 0)
-      (comment-intro . c-lineup-dont-change)
-      (arglist-cont-nonempty . llvm-c-lineup-arglist)
-      (block-close . 0))
-     (Syntax . ANSI-Common-Lisp)
-     (Base . 10)
-     (Package . C)
-     (Package . SYSTEM)
-     (Package . CLOS)
-     (Syntax . Common-Lisp)))
+     (c-file-offsets (innamespace . 0) (substatement-open . 0)
+                     (c . c-lineup-dont-change) (inextern-lang . 0)
+                     (comment-intro . c-lineup-dont-change)
+                     (block-close . 0))
+     (c-file-offsets (innamespace . 0) (substatement-open . 0)
+                     (c . c-lineup-dont-change) (inextern-lang . 0)
+                     (comment-intro . c-lineup-dont-change)
+                     (arglist-cont-nonempty . llvm-c-lineup-arglist)
+                     (block-close . 0))
+     (Syntax . ANSI-Common-Lisp) (Base . 10) (Package . C)
+     (Package . SYSTEM) (Package . CLOS) (Syntax . Common-Lisp)))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(warning-suppress-types '((auto-save))))
@@ -191,6 +162,7 @@
 
 (setq-default use-package-always-ensure t)
 
+(use-package rainbow-delimiters)
 (use-package goto-chg)
 (use-package symbol-overlay)
 (use-package cl-lib)
@@ -226,6 +198,16 @@
 ;(global-set-key [f11] 'mgl-pax-document)
 ;;;(global-set-key (kbd "s-x t") 'mgl-pax-transcribe-last-expression)
 ;;;(global-set-key (kbd "s-x r") 'mgl-pax-retranscribe-region)
+
+
+;;;
+;;; Jump to most recent window
+;;;
+(defun jump-to-mru-window ()
+  (interactive)
+  (select-window (get-mru-window nil nil t)))
+(global-set-key (kbd "<home>") 'jump-to-mru-window)
+
 
 ;;;
 ;;; neotree bindings
@@ -294,7 +276,9 @@
 
 (defun my-disable-visual-mode-in-shell ()
   "Disable visual mode in *shell* buffer."
-  (when (and (string= (buffer-name) "*shell*")
+  (when (and (or (string-match-p "\\*shell\\*" (buffer-name))
+                 (string-match-p "sly-mrepl" (buffer-name))
+                 )
              (evil-visual-state-p))
     (evil-exit-visual-state)))
 
@@ -302,7 +286,9 @@
 
 (defun my-evil-visual-state-advice (orig-fun &rest args)
   "Prevent entering visual mode in *shell* buffer."
-  (unless (string= (buffer-name) "*shell*")
+  (unless (or (string-match-p "\\*shell\\*" (buffer-name))
+              (string-match-p "sly-mrepl" (buffer-name))
+              )
     (apply orig-fun args)))
 
 (advice-add 'evil-visual-state :around #'my-evil-visual-state-advice)
@@ -310,7 +296,7 @@
 
 (defun my-disable-escape-key-in-shell ()
   "Disable the Escape key in *shell* buffer."
-  (when (string= (buffer-name) "*shell*")
+  (when (or (string-match-p "\\*shell\\*" (buffer-name)))
     (define-key evil-normal-state-local-map [escape] 'ignore)
     (define-key evil-insert-state-local-map [escape] 'ignore)
     (define-key evil-visual-state-local-map [escape] 'ignore)))
@@ -318,9 +304,14 @@
 (add-hook 'shell-mode-hook 'my-disable-escape-key-in-shell)
 
 
+(defun my-disable-escape-key-in-sly-mrepl ()
+  "Disable the Escape key in *shell* buffer."
+  (when (or (string-match-p "sly-mrepl" (buffer-name)))
+    (define-key evil-normal-state-local-map [escape] 'ignore)
+    (define-key evil-insert-state-local-map [escape] 'ignore)
+    (define-key evil-visual-state-local-map [escape] 'ignore)))
 
-
-
+(add-hook 'sly-mrepl-mode-hook 'my-disable-escape-key-in-sly-mrepl)
 
 ;;; Turn on dispatch always when M-o is activated
 
@@ -402,32 +393,62 @@
   (require 'evil-terminal-cursor-changer)
   (evil-terminal-cursor-changer-activate))
 
-(defun my-evil-state-color ()
-  "Change mode-line color based on the current Evil state."
-  (cond ((evil-insert-state-p) (progn
-                                 ;;;(set-background-color "#001000")
-                                 (set-face-background 'mode-line "green")
-                                 ))
-         ((evil-normal-state-p) (progn
-                                  ;;;(set-background-color "#200000")
-                                  (set-face-background 'mode-line "red")
-                                  ))
-          ((evil-emacs-state-p) (progn
-                                  ;;;(set-face-background 'mode-line "magenta")
-                                  ))
-        (t (set-face-background 'mode-line "green"))))
+;;;----------------------------------------------------------------------------
+
+(defvar-local my/evil-bg-remap-cookie nil)
+
+(defun my/update-evil-window-bg ()
+  "Set window background color based on Evil state."
+  (when my/evil-bg-remap-cookie
+    (face-remap-remove-relative my/evil-bg-remap-cookie))
+  (let* ((color (if (eq evil-state 'insert) "#003000" "#300000")))
+    (setq my/evil-bg-remap-cookie
+          (face-remap-add-relative 'default `(:background ,color)))
+    ;; Also update fringe, line numbers, etc.
+    (set-face-background 'fringe color)
+    (set-face-background 'line-number color)
+    (set-face-background 'line-number-current-line color)
+    (set-face-background 'vertical-border color)
+    (set-face-background 'window-divider color)))
+
+(defun my/update-evil-bg-for-selected-window ()
+  "Apply background per window: insert/move for code, black for *compilation*."
+  (walk-windows
+   (lambda (win)
+     (with-selected-window win
+       (with-current-buffer (window-buffer win)
+         (cond
+          ;; For compilation buffer, set static black background
+          ((string-match-p "compilation\\*\\'" (buffer-name))
+           (when my/evil-bg-remap-cookie
+             (face-remap-remove-relative my/evil-bg-remap-cookie))
+           (setq my/evil-bg-remap-cookie
+                 (face-remap-add-relative 'default `(:background "#000000"))))
+
+          ;; For selected window: apply evil-mode color
+          ((eq win (selected-window))
+           (my/update-evil-window-bg))
+
+          ;; For other windows: clear coloring
+          (t
+           (when my/evil-bg-remap-cookie
+             (face-remap-remove-relative my/evil-bg-remap-cookie)
+             (setq my/evil-bg-remap-cookie nil)))))))
+   nil t))
+
+;; Hooks to track Evil mode transitions and window selection
+(add-hook 'evil-insert-state-entry-hook #'my/update-evil-bg-for-selected-window)
+(add-hook 'evil-insert-state-exit-hook #'my/update-evil-bg-for-selected-window)
+(add-hook 'window-selection-change-functions (lambda (_win) (my/update-evil-bg-for-selected-window)))
+(add-hook 'post-command-hook #'my/update-evil-bg-for-selected-window) ;; Catch ESC properly
+(add-hook 'emacs-startup-hook #'my/update-evil-bg-for-selected-window)
 
 
-(add-hook 'window-selection-change-functions (lambda (xxx)
-                                               (my-evil-state-color)))
-(add-hook 'evil-normal-state-entry-hook (lambda ()
-                                         ;;; (set-background-color "#200000")
-                                          (set-face-background 'mode-line "red")
-                                          ))
-(add-hook 'evil-insert-state-entry-hook (lambda ()
-                                          ;;; (set-background-color "#001000")
-                                          (set-face-background 'mode-line "green")
-                                          ))
+
+
+
+
+;;;----------------------------------------------------------------------------
 
 
 
