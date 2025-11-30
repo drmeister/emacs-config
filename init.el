@@ -61,17 +61,16 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(ace-window ag clang-format clang-format+ clipetty
-                color-theme-buffer-local command-log-mode evil
-                evil-collection evil-terminal-cursor-changer fireplace
-                flylisp focus fold-dwim folding free-keys ggtags
-                git-timemachine git-wip-timemachine gnuplot
-                highlight-indent-guides highlight-indentation iedit
-                indent-bars json-mode load-theme-buffer-local magit
-                neotree paredit projectile rainbow-blocks
-                rainbow-delimiters realgud-lldb rust-mode
-                symbol-overlay treesit-auto use-package w3m wgrep
-                wgrep-ag which-key ztree))
+   '(ace-window ag chatgpt chatgpt-shell clang-format+ clipetty
+                color-theme-buffer-local evil-collection
+                evil-terminal-cursor-changer free-keys ggtags
+                git-commit git-timemachine gptel
+                highlight-indent-guides highlight-indentation
+                indent-bars json-mode load-theme-buffer-local
+                macrostep magit math-preview neotree prism projectile
+                rainbow-delimiters rust-mode symbol-overlay tramp
+                use-package w3m wgrep-ag which-key wolfram-mode
+                yasnippet))
  '(safe-local-variable-values
    '((package . rune-dom) (Encoding . utf-8) (readtable . runes)
      (Package . CXML) (Package . TRIVIAL-GRAY-STREAMS)
@@ -148,9 +147,15 @@
 ;;;
 ;;; package initialization
 
+(add-to-list 'package-archives '( "jcs-elpa" . "https://jcs-emacs.github.io/jcs-elpa/packages/") t)
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+
+(setq package-archive-priorities '(("melpa"    . 5)
+                                   ("melpa-stable"    . 5)
+                                   ("gnu"    . 5)
+                                   ("jcs-elpa" . 0)))
 
 (package-initialize)
 
@@ -162,6 +167,8 @@
 
 (setq-default use-package-always-ensure t)
 
+(use-package math-preview
+  :custom (math-preview-command "/Applications/ccp4-9/bin/math-preview"))
 (use-package rainbow-delimiters)
 (use-package goto-chg)
 (use-package symbol-overlay)
@@ -184,6 +191,32 @@
 (use-package which-key)
 (use-package evil-terminal-cursor-changer)
 (use-package neotree)
+
+
+;;; ------------------------------
+;;; ChatGPT key
+;;; ------------------------------
+
+(use-package gptel :ensure t)
+(setq gptel-api-key (getenv "OPENAI_KEY"))
+(setq gptel-model 'gpt-5.1)
+
+;; Ensure the variable is not nil before using it
+(when (string-empty-p gptel-api-key)
+  (error "OPENAI_KEY environment variable is not set!"))
+
+(gptel-make-preset 'coding
+  :model 'gpt-5.1
+  :system-message "You are a helpful coding assistant. Provide concise and correct code snippets."
+  :temperature 0.7 )
+
+(when nil
+  (setq chatgpt-model "gpt-5" )         ; "gpt-4") ;  gpt-3.5-turbo")
+  (add-hook 'chatgpt-startup-hook 'evil-insert-state)
+  (evil-set-initial-state 'chatgpt-mode 'insert)
+  (evil-set-initial-state 'chatgpt-input-mode 'insert))
+
+
 (use-package projectile
   :ensure t
 ;;  :pin melpa-stable
@@ -274,20 +307,32 @@
 
 
 
-(defun my-disable-visual-mode-in-shell ()
-  "Disable visual mode in *shell* buffer."
+(defun my-disable-visual-state-in-shell ()
+  "Disable visual state in *shell* buffer."
   (when (and (or (string-match-p "\\*shell\\*" (buffer-name))
                  (string-match-p "sly-mrepl" (buffer-name))
+                 (string-match-p "\\*ChatGPT" (buffer-name))
                  )
              (evil-visual-state-p))
     (evil-exit-visual-state)))
 
-(add-hook 'evil-visual-state-entry-hook 'my-disable-visual-mode-in-shell)
+(defun my-disable-normal-state-in-shell ()
+  "Disable visual state in *shell* buffer."
+  (when (and (or (string-match-p "\\*shell\\*" (buffer-name))
+                 (string-match-p "sly-mrepl" (buffer-name))
+                 (string-match-p "\\*ChatGPT" (buffer-name))
+                 )
+             (evil-visual-state-p))
+    (evil-exit-visual-state)))
+
+(add-hook 'evil-visual-state-entry-hook 'my-disable-visual-state-in-shell)
+(add-hook 'evil-visual-state-entry-hook 'my-disable-normal-state-in-shell)
 
 (defun my-evil-visual-state-advice (orig-fun &rest args)
-  "Prevent entering visual mode in *shell* buffer."
+  "Prevent entering visual state in *shell* buffer."
   (unless (or (string-match-p "\\*shell\\*" (buffer-name))
               (string-match-p "sly-mrepl" (buffer-name))
+              (string-match-p "\\*ChatGPT" (buffer-name))
               )
     (apply orig-fun args)))
 
@@ -401,7 +446,11 @@
   "Set window background color based on Evil state."
   (when my/evil-bg-remap-cookie
     (face-remap-remove-relative my/evil-bg-remap-cookie))
-  (let* ((color (if (eq evil-state 'insert) "#003000" "#300000")))
+  (let* ((color (if (eq evil-state 'insert)
+                    "#003000"
+                  (if (eq evil-state 'replace)
+                      "#000030"
+                    "#300000"))))
     (setq my/evil-bg-remap-cookie
           (face-remap-add-relative 'default `(:background ,color)))
     ;; Also update fringe, line numbers, etc.
@@ -794,4 +843,86 @@
 )
 
 (add-hook 'lisp-mode-hook 'my-lisp-mode-customizations)
+
+
+
+
+;;; ------------------------------------------------------------
+;;; Org + gptel integration
+;;; ------------------------------------------------------------
+
+;; 1. Org Babel: enable some languages
+(with-eval-after-load 'org
+
+  (setq org-format-latex-options
+        (plist-put org-format-latex-options :scale 2.0))
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python  . t)
+     (shell   . t)
+     (C       . t)
+     (dot     . t)    ;; Graphviz
+     (gnuplot . t)))  ;; plotting
+  ;; Optional: don’t ask before executing code blocks
+  (setq org-confirm-babel-evaluate nil))
+
+
+;; 2. gptel + Org behavior
+(with-eval-after-load 'gptel
+
+  ;; Expert mode
+  (setq gptel-expert-commands t)
+  (setq gptel-default-mode #'org-mode)
+
+  ;; Set up a log if you want - but it will never be cleared automatically
+  ; (setq gptel-log-file "~/.log/gptel.log")
+
+  ;; a) In Org buffers used as chat, bind C-c RET to gptel-send
+  (defun my-gptel-org-keybinding ()
+    "If this Org buffer is a gptel chat buffer, bind C-c RET to `gptel-send`."
+    (when (and (derived-mode-p 'org-mode)
+               (string-match-p "\\*ChatGPT\\*" (buffer-name)))
+      (local-set-key (kbd "C-c RET") #'gptel-send)))
+  (add-hook 'org-mode-hook #'my-gptel-org-keybinding)
+
+  ;; b) Auto-refresh LaTeX fragments in Org gptel buffers
+  (defun my-gptel-org-refresh-latex ()
+    "Refresh LaTeX previews in Org gptel buffers."
+    (when (and (derived-mode-p 'org-mode)
+               (string-match-p "\\*ChatGPT\\*" (buffer-name)))
+      ;; Remove then re-add previews to force refresh
+      (org-toggle-latex-fragment 'remove)
+      (org-toggle-latex-fragment 'toggle)))
+
+  (defun my-gptel-org-enable-auto-latex ()
+    "Enable automatic LaTeX fragment refresh in this Org gptel buffer."
+    (when (string-match-p "\\*ChatGPT\\*" (buffer-name))
+      (add-hook 'post-command-hook #'my-gptel-org-refresh-latex nil t)))
+
+  ;;;(add-hook 'org-mode-hook #'my-gptel-org-enable-auto-latex)
+  )
+
+;;; ------------------------------------------------------------
+;;; Set the face for gptel
+;;; ------------------------------------------------------------
+
+(custom-set-faces
+ `(gptel-context-highlight-face ((t (:overline "#353535"
+                                                 :slant italic)))))
+
+
+;;; ------------------------------------------------------------
+;;; Convenience: start an Org-mode ChatGPT buffer
+;;; ------------------------------------------------------------
+
+(defun my-gptel-org-chat ()
+  "Open or switch to *ChatGPT* buffer in Org mode and start gptel."
+  (interactive)
+  (let ((buf (get-buffer-create "*ChatGPT*")))
+    (switch-to-buffer buf)
+    (org-mode)
+    (visual-line-mode 1)
+    (gptel "*ChatGPT*")))
+
 
