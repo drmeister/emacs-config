@@ -307,56 +307,53 @@
 
 
 
-(defun my-disable-visual-state-in-shell ()
-  "Disable visual state in *shell* buffer."
-  (when (and (or (string-match-p "\\*shell\\*" (buffer-name))
-                 (string-match-p "sly-mrepl" (buffer-name))
-                 (string-match-p "\\*ChatGPT" (buffer-name))
-                 )
+(defun my-disable-visual-state-in-chat-buffers ()
+  "Disable visual state in ChatGPT buffers."
+  (when (and (string-match-p "\\*ChatGPT" (buffer-name))
              (evil-visual-state-p))
     (evil-exit-visual-state)))
 
-(defun my-disable-normal-state-in-shell ()
-  "Disable visual state in *shell* buffer."
-  (when (and (or (string-match-p "\\*shell\\*" (buffer-name))
-                 (string-match-p "sly-mrepl" (buffer-name))
-                 (string-match-p "\\*ChatGPT" (buffer-name))
-                 )
-             (evil-visual-state-p))
-    (evil-exit-visual-state)))
-
-(add-hook 'evil-visual-state-entry-hook 'my-disable-visual-state-in-shell)
-(add-hook 'evil-visual-state-entry-hook 'my-disable-normal-state-in-shell)
+(add-hook 'evil-visual-state-entry-hook 'my-disable-visual-state-in-chat-buffers)
 
 (defun my-evil-visual-state-advice (orig-fun &rest args)
-  "Prevent entering visual state in *shell* buffer."
-  (unless (or (string-match-p "\\*shell\\*" (buffer-name))
-              (string-match-p "sly-mrepl" (buffer-name))
-              (string-match-p "\\*ChatGPT" (buffer-name))
-              )
+  "Prevent entering visual state in ChatGPT buffer."
+  (unless (string-match-p "\\*ChatGPT" (buffer-name))
     (apply orig-fun args)))
 
 (advice-add 'evil-visual-state :around #'my-evil-visual-state-advice)
 
+(defun my-move-repl-point-to-end-on-insert ()
+  "When entering insert in shell or SLY REPL, jump to end of buffer."
+  (when (or (derived-mode-p 'shell-mode)
+            (derived-mode-p 'sly-mrepl-mode))
+    (goto-char (point-max))))
 
-(defun my-disable-escape-key-in-shell ()
-  "Disable the Escape key in *shell* buffer."
-  (when (or (string-match-p "\\*shell\\*" (buffer-name)))
-    (define-key evil-normal-state-local-map [escape] 'ignore)
-    (define-key evil-insert-state-local-map [escape] 'ignore)
-    (define-key evil-visual-state-local-map [escape] 'ignore)))
+(add-hook 'evil-insert-state-entry-hook #'my-move-repl-point-to-end-on-insert)
 
-(add-hook 'shell-mode-hook 'my-disable-escape-key-in-shell)
+(defun my-repl-exit-insert-when-not-at-eob ()
+  "In shell/SLY REPL, drop to normal state when not at end of buffer."
+  (when (and (or (derived-mode-p 'shell-mode)
+                 (derived-mode-p 'sly-mrepl-mode))
+             (evil-insert-state-p)
+             (not (eobp)))
+    (evil-normal-state)))
 
+(defun my-repl-enter-insert-when-at-eob ()
+  "In shell/SLY REPL, enter insert state automatically at end of buffer."
+  (when (and (or (derived-mode-p 'shell-mode)
+                 (derived-mode-p 'sly-mrepl-mode))
+             (not (minibufferp))
+             (not (evil-insert-state-p))
+             (eobp))
+    (evil-insert-state)))
 
-(defun my-disable-escape-key-in-sly-mrepl ()
-  "Disable the Escape key in *shell* buffer."
-  (when (or (string-match-p "sly-mrepl" (buffer-name)))
-    (define-key evil-normal-state-local-map [escape] 'ignore)
-    (define-key evil-insert-state-local-map [escape] 'ignore)
-    (define-key evil-visual-state-local-map [escape] 'ignore)))
+(defun my-enable-repl-insert-guard ()
+  "Enable buffer-local guard to leave insert if not at prompt end."
+  (add-hook 'post-command-hook #'my-repl-exit-insert-when-not-at-eob nil t)
+  (add-hook 'post-command-hook #'my-repl-enter-insert-when-at-eob nil t))
 
-(add-hook 'sly-mrepl-mode-hook 'my-disable-escape-key-in-sly-mrepl)
+(add-hook 'shell-mode-hook #'my-enable-repl-insert-guard)
+(add-hook 'sly-mrepl-mode-hook #'my-enable-repl-insert-guard)
 
 ;;; Turn on dispatch always when M-o is activated
 
@@ -440,50 +437,67 @@
 
 ;;;----------------------------------------------------------------------------
 
-(defvar-local my/evil-bg-remap-cookie nil)
+(defvar-local my/evil-bg-remap-cookies nil)
+(defvar my/evil-bg-last-buffer nil)
+
+(defun my/clear-evil-bg-remaps ()
+  "Remove any buffer-local background remaps applied for Evil state."
+  (when my/evil-bg-remap-cookies
+    (mapc #'face-remap-remove-relative my/evil-bg-remap-cookies)
+    (setq my/evil-bg-remap-cookies nil)))
+
+(defun my/set-buffer-bg-color (color)
+  "Apply a buffer-local background COLOR to relevant faces."
+  (my/clear-evil-bg-remaps)
+  (setq my/evil-bg-remap-cookies
+        (mapcar (lambda (face)
+                  (face-remap-add-relative face `(:background ,color)))
+                '(default fringe line-number line-number-current-line))))
+
+(defun my/set-window-divider-bg-black ()
+  "Keep window divider faces black globally to avoid color ghosts."
+  (dolist (face '(vertical-border window-divider window-divider-first-pixel window-divider-last-pixel))
+    (when (facep face)
+      (set-face-background face "#000000"))))
 
 (defun my/update-evil-window-bg ()
   "Set window background color based on Evil state."
-  (when my/evil-bg-remap-cookie
-    (face-remap-remove-relative my/evil-bg-remap-cookie))
   (let* ((color (if (eq evil-state 'insert)
                     "#003000"
                   (if (eq evil-state 'replace)
                       "#000030"
                     "#300000"))))
-    (setq my/evil-bg-remap-cookie
-          (face-remap-add-relative 'default `(:background ,color)))
-    ;; Also update fringe, line numbers, etc.
-    (set-face-background 'fringe color)
-    (set-face-background 'line-number color)
-    (set-face-background 'line-number-current-line color)
-    (set-face-background 'vertical-border color)
-    (set-face-background 'window-divider color)))
+    (my/set-buffer-bg-color color)))
 
 (defun my/update-evil-bg-for-selected-window ()
-  "Apply background per window: insert/move for code, black for *compilation*."
-  (walk-windows
-   (lambda (win)
-     (with-selected-window win
-       (with-current-buffer (window-buffer win)
-         (cond
-          ;; For compilation buffer, set static black background
-          ((string-match-p "compilation\\*\\'" (buffer-name))
-           (when my/evil-bg-remap-cookie
-             (face-remap-remove-relative my/evil-bg-remap-cookie))
-           (setq my/evil-bg-remap-cookie
-                 (face-remap-add-relative 'default `(:background "#000000"))))
+  "Only the current buffer gets Evil state color; others are black."
+  ;; Reset if the tracked buffer died
+  (unless (buffer-live-p my/evil-bg-last-buffer)
+    (setq my/evil-bg-last-buffer nil))
 
-          ;; For selected window: apply evil-mode color
-          ((eq win (selected-window))
-           (my/update-evil-window-bg))
+  (let ((curr (current-buffer)))
+    ;; When moving away from the previous buffer, force it to black
+    (unless (eq curr my/evil-bg-last-buffer)
+      (when (and my/evil-bg-last-buffer (buffer-live-p my/evil-bg-last-buffer))
+        (with-current-buffer my/evil-bg-last-buffer
+          (my/set-buffer-bg-color "#000000")))
+      (setq my/evil-bg-last-buffer curr))
 
-          ;; For other windows: clear coloring
-          (t
-           (when my/evil-bg-remap-cookie
-             (face-remap-remove-relative my/evil-bg-remap-cookie)
-             (setq my/evil-bg-remap-cookie nil)))))))
-   nil t))
+    ;; Blacken all visible non-current buffers
+    (walk-windows
+     (lambda (win)
+       (with-selected-window win
+         (let ((buf (window-buffer win)))
+           (unless (eq buf curr)
+             (with-current-buffer buf
+               (my/set-buffer-bg-color "#000000"))))))
+     nil t)
+
+    ;; Color the current buffer according to Evil state (compilation stays black)
+    (with-current-buffer curr
+      (if (string-match-p "compilation\\*\\'" (buffer-name))
+          (my/set-buffer-bg-color "#000000")
+        (my/update-evil-window-bg)))))
 
 ;; Hooks to track Evil mode transitions and window selection
 (add-hook 'evil-insert-state-entry-hook #'my/update-evil-bg-for-selected-window)
@@ -491,6 +505,7 @@
 (add-hook 'window-selection-change-functions (lambda (_win) (my/update-evil-bg-for-selected-window)))
 (add-hook 'post-command-hook #'my/update-evil-bg-for-selected-window) ;; Catch ESC properly
 (add-hook 'emacs-startup-hook #'my/update-evil-bg-for-selected-window)
+(add-hook 'emacs-startup-hook #'my/set-window-divider-bg-black)
 
 
 
@@ -924,5 +939,3 @@
     (org-mode)
     (visual-line-mode 1)
     (gptel "*ChatGPT*")))
-
-
