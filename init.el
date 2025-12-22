@@ -194,13 +194,6 @@
 
 
 
-;; -------------------------------
-;; macher
-;; -------------------------------
-
-(add-to-list 'load-path "~/Development/macher")
-(require 'macher)
-
 (use-package projectile
   :ensure t
 ;;  :pin melpa-stable
