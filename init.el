@@ -61,20 +61,17 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages
-   '(ace-window ag chatgpt chatgpt-shell clang-format+ clipetty
-                color-theme-buffer-local evil-collection
-                evil-terminal-cursor-changer free-keys ggtags
-                git-commit git-timemachine gptel
-                highlight-indent-guides highlight-indentation
-                indent-bars json-mode load-theme-buffer-local
-                macrostep magit math-preview neotree prism projectile
-                rainbow-delimiters rust-mode symbol-overlay tramp
-                use-package w3m wgrep-ag which-key wolfram-mode
+   '(ace-window ag clipetty cuda-mode evil-collection
+                evil-terminal-cursor-changer free-keys git-timemachine
+                macrostep magit math-preview neotree projectile
+                rainbow-delimiters rust-mode sly symbol-overlay
+                transpose-frame treesit-auto wgrep-ag which-key
                 yasnippet))
  '(safe-local-variable-values
-   '((package . rune-dom) (Encoding . utf-8) (readtable . runes)
-     (Package . CXML) (Package . TRIVIAL-GRAY-STREAMS)
-     (Syntax . ANSI-Common-lisp) (Package . ASDF) (package . puri)
+   '((sly-load-failed-fasl . ask) (package . rune-dom) (Encoding . utf-8)
+     (readtable . runes) (Package . CXML)
+     (Package . TRIVIAL-GRAY-STREAMS) (Syntax . ANSI-Common-lisp)
+     (Package . ASDF) (package . puri)
      (eval when (fboundp 'c-toggle-comment-style)
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
@@ -174,6 +171,9 @@
 (use-package symbol-overlay)
 (use-package cl-lib)
 (use-package ag)
+(use-package transpose-frame
+  :ensure t
+  :bind (("C-x |" . transpose-frame)))
 (use-package svg)
 (use-package yasnippet)
 (use-package free-keys)
@@ -193,29 +193,13 @@
 (use-package neotree)
 
 
-;;; ------------------------------
-;;; ChatGPT key
-;;; ------------------------------
 
-(use-package gptel :ensure t)
-(setq gptel-api-key (getenv "OPENAI_KEY"))
-(setq gptel-model 'gpt-5.1)
+;; -------------------------------
+;; macher
+;; -------------------------------
 
-;; Ensure the variable is not nil before using it
-(when (string-empty-p gptel-api-key)
-  (error "OPENAI_KEY environment variable is not set!"))
-
-(gptel-make-preset 'coding
-  :model 'gpt-5.1
-  :system-message "You are a helpful coding assistant. Provide concise and correct code snippets."
-  :temperature 0.7 )
-
-(when nil
-  (setq chatgpt-model "gpt-5" )         ; "gpt-4") ;  gpt-3.5-turbo")
-  (add-hook 'chatgpt-startup-hook 'evil-insert-state)
-  (evil-set-initial-state 'chatgpt-mode 'insert)
-  (evil-set-initial-state 'chatgpt-input-mode 'insert))
-
+(add-to-list 'load-path "~/Development/macher")
+(require 'macher)
 
 (use-package projectile
   :ensure t
@@ -305,6 +289,26 @@
   (insert ")")
   (backward-char 1))
 
+
+(when nil
+  (require 'seq) ;; built-in
+
+  (defvar my/auto-bottom-prefixes '("*ChatGPT*" "*shell*" "*sly-mrepl")
+    "Buffer name prefixes that should jump to the end when entered.")
+
+  (defun my/jump-to-bottom-on-enter ()
+    (let* ((win (selected-window))
+           (name (buffer-name (window-buffer win))))
+                                        ;    (message "jump hook fired in: %s" name)
+      (when (and name
+                 (seq-some (lambda (p) (string-prefix-p p name))
+                           my/auto-bottom-prefixes))
+        (goto-char (point-max))
+        (set-window-point win (point-max))
+        (recenter -1))))
+
+  (add-hook 'buffer-list-update-hook #'my/jump-to-bottom-on-enter)
+  )
 
 
 (defun my-disable-visual-state-in-chat-buffers ()
@@ -862,80 +866,8 @@
 
 
 
-;;; ------------------------------------------------------------
-;;; Org + gptel integration
-;;; ------------------------------------------------------------
 
-;; 1. Org Babel: enable some languages
-(with-eval-after-load 'org
+(setq split-height-threshold nil)
+(setq split-width-threshold 160)
 
-  (setq org-format-latex-options
-        (plist-put org-format-latex-options :scale 2.0))
-
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((python  . t)
-     (shell   . t)
-     (C       . t)
-     (dot     . t)    ;; Graphviz
-     (gnuplot . t)))  ;; plotting
-  ;; Optional: don’t ask before executing code blocks
-  (setq org-confirm-babel-evaluate nil))
-
-
-;; 2. gptel + Org behavior
-(with-eval-after-load 'gptel
-
-  ;; Expert mode
-  (setq gptel-expert-commands t)
-  (setq gptel-default-mode #'org-mode)
-
-  ;; Set up a log if you want - but it will never be cleared automatically
-  ; (setq gptel-log-file "~/.log/gptel.log")
-
-  ;; a) In Org buffers used as chat, bind C-c RET to gptel-send
-  (defun my-gptel-org-keybinding ()
-    "If this Org buffer is a gptel chat buffer, bind C-c RET to `gptel-send`."
-    (when (and (derived-mode-p 'org-mode)
-               (string-match-p "\\*ChatGPT\\*" (buffer-name)))
-      (local-set-key (kbd "C-c RET") #'gptel-send)))
-  (add-hook 'org-mode-hook #'my-gptel-org-keybinding)
-
-  ;; b) Auto-refresh LaTeX fragments in Org gptel buffers
-  (defun my-gptel-org-refresh-latex ()
-    "Refresh LaTeX previews in Org gptel buffers."
-    (when (and (derived-mode-p 'org-mode)
-               (string-match-p "\\*ChatGPT\\*" (buffer-name)))
-      ;; Remove then re-add previews to force refresh
-      (org-toggle-latex-fragment 'remove)
-      (org-toggle-latex-fragment 'toggle)))
-
-  (defun my-gptel-org-enable-auto-latex ()
-    "Enable automatic LaTeX fragment refresh in this Org gptel buffer."
-    (when (string-match-p "\\*ChatGPT\\*" (buffer-name))
-      (add-hook 'post-command-hook #'my-gptel-org-refresh-latex nil t)))
-
-  ;;;(add-hook 'org-mode-hook #'my-gptel-org-enable-auto-latex)
-  )
-
-;;; ------------------------------------------------------------
-;;; Set the face for gptel
-;;; ------------------------------------------------------------
-
-(custom-set-faces
- `(gptel-context-highlight-face ((t (:overline "#353535"
-                                                 :slant italic)))))
-
-
-;;; ------------------------------------------------------------
-;;; Convenience: start an Org-mode ChatGPT buffer
-;;; ------------------------------------------------------------
-
-(defun my-gptel-org-chat ()
-  "Open or switch to *ChatGPT* buffer in Org mode and start gptel."
-  (interactive)
-  (let ((buf (get-buffer-create "*ChatGPT*")))
-    (switch-to-buffer buf)
-    (org-mode)
-    (visual-line-mode 1)
-    (gptel "*ChatGPT*")))
+(put 'erase-buffer 'disabled nil)
