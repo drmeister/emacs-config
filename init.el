@@ -319,20 +319,27 @@
 
 (advice-add 'evil-visual-state :around #'my-evil-visual-state-advice)
 
+(defun my-repl-point-in-input-p ()
+  "Return non-nil if point is in the current input area."
+  (if (fboundp 'comint-after-pmark-p)
+      (comint-after-pmark-p)
+    (eobp)))
+
 (defun my-move-repl-point-to-end-on-insert ()
-  "When entering insert in shell or SLY REPL, jump to end of buffer."
-  (when (or (derived-mode-p 'shell-mode)
-            (derived-mode-p 'sly-mrepl-mode))
+  "When entering insert in shell or SLY REPL, jump to end of input."
+  (when (and (or (derived-mode-p 'shell-mode)
+                 (derived-mode-p 'sly-mrepl-mode))
+             (not (my-repl-point-in-input-p)))
     (goto-char (point-max))))
 
 (add-hook 'evil-insert-state-entry-hook #'my-move-repl-point-to-end-on-insert)
 
 (defun my-repl-exit-insert-when-not-at-eob ()
-  "In shell/SLY REPL, drop to normal state when not at end of buffer."
+  "In shell/SLY REPL, drop to normal state when leaving input."
   (when (and (or (derived-mode-p 'shell-mode)
                  (derived-mode-p 'sly-mrepl-mode))
              (evil-insert-state-p)
-             (not (eobp)))
+             (not (my-repl-point-in-input-p)))
     (evil-normal-state)))
 
 (defun my-repl-enter-insert-when-at-eob ()
@@ -345,7 +352,7 @@
     (evil-insert-state)))
 
 (defun my-enable-repl-insert-guard ()
-  "Enable buffer-local guard to leave insert if not at prompt end."
+  "Enable buffer-local guard to keep insert inside prompt input."
   (add-hook 'post-command-hook #'my-repl-exit-insert-when-not-at-eob nil t)
   (add-hook 'post-command-hook #'my-repl-enter-insert-when-at-eob nil t))
 
