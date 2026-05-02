@@ -60,18 +60,15 @@
  '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages
-   '(ace-window ag clipetty cuda-mode evil-collection
-                evil-terminal-cursor-changer free-keys git-timemachine
-                macrostep magit math-preview neotree projectile
-                rainbow-delimiters rust-mode sly symbol-overlay
-                transpose-frame treesit-auto wgrep-ag which-key
-                yasnippet))
+ '(package-selected-packages nil)
+ '(package-vc-selected-packages
+   '((claude-code-ide :url
+                      "https://github.com/manzaltu/claude-code-ide.el")))
  '(safe-local-variable-values
-   '((sly-load-failed-fasl . ask) (package . rune-dom) (Encoding . utf-8)
-     (readtable . runes) (Package . CXML)
-     (Package . TRIVIAL-GRAY-STREAMS) (Syntax . ANSI-Common-lisp)
-     (Package . ASDF) (package . puri)
+   '((Package . USOCKET) (Package . CHUNGA) (sly-load-failed-fasl . ask)
+     (package . rune-dom) (Encoding . utf-8) (readtable . runes)
+     (Package . CXML) (Package . TRIVIAL-GRAY-STREAMS)
+     (Syntax . ANSI-Common-lisp) (Package . ASDF) (package . puri)
      (eval when (fboundp 'c-toggle-comment-style)
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
@@ -164,16 +161,20 @@
 
 (setq-default use-package-always-ensure t)
 
+(use-package vterm
+  :ensure t
+  :bind (:map vterm-mode-map
+              ("<escape>" . vterm--self-insert)))
 (use-package math-preview
   :custom (math-preview-command "/Applications/ccp4-9/bin/math-preview"))
 (use-package rainbow-delimiters)
 (use-package goto-chg)
+(use-package clipetty)
 (use-package symbol-overlay)
 (use-package cl-lib)
 (use-package ag)
 (use-package transpose-frame
-  :ensure t
-  :bind (("C-x |" . transpose-frame)))
+  :ensure t)
 (use-package svg)
 (use-package yasnippet)
 (use-package free-keys)
@@ -185,14 +186,71 @@
 (use-package git-timemachine)
 (use-package evil)
 (use-package evil-collection)
-(use-package clipetty)
 (use-package rust-mode)
 (use-package ace-window)
 (use-package which-key)
 (use-package evil-terminal-cursor-changer)
 (use-package neotree)
 
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :custom
+  ;; Use a regular (splittable, resizable) window instead of a side
+  ;; window. Side windows are non-resizable in Emacs — C-x ^ / C-x }
+  ;; and mouse-drag are disabled on them. This flip makes the Claude
+  ;; Code buffer obey standard window-management commands.
+  (claude-code-ide-use-side-window nil)
+  ;; Open the Claude Code buffer at the bottom spanning the full frame
+  ;; width. Ignored by the package when use-side-window is nil, but
+  ;; kept here because the display-buffer-alist entry below consults
+  ;; the same placement intent.
+  (claude-code-ide-window-side 'bottom)
+  :config
+  (claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
+  ;; Force the Claude Code buffer into a full-width bottom window via
+  ;; display-buffer-alist. This runs independently of the package's
+  ;; own placement logic — useful if the `use-side-window = nil` path
+  ;; doesn't on its own put the window where you want it. Match on
+  ;; the buffer-name pattern the package uses ("*claude-code*" and
+  ;; variants like "*claude-code:/path/*"). Using
+  ;; display-buffer-below-selected keeps the window splittable and
+  ;; resizable unlike display-buffer-in-side-window.
+  (add-to-list
+   'display-buffer-alist
+   '("\\*claude-code"
+     (display-buffer-reuse-window display-buffer-at-bottom)
+     (window-height . 0.3))))
 
+;; Claude Code vterm: start in insert mode and disable trailing whitespace display
+(add-to-list 'evil-insert-state-modes 'vterm-mode)
+(add-hook 'vterm-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
+
+;; C-c v in vterm enters copy mode for scrolling; q exits back to insert
+(defun my/vterm-escape-to-copy-mode ()
+  "Enter vterm-copy-mode and evil normal state for scrolling."
+  (interactive)
+  (vterm-copy-mode 1)
+  (evil-normal-state))
+
+(defun my/vterm-exit-copy-mode ()
+  "Exit vterm-copy-mode and return to evil insert state."
+  (interactive)
+  (vterm-copy-mode -1)
+  (evil-insert-state))
+
+(add-hook 'vterm-mode-hook
+          (lambda ()
+            (evil-local-set-key 'insert (kbd "C-c v") #'my/vterm-escape-to-copy-mode)
+            ;; Also bind locally (outside evil) so it works in the
+            ;; claude-code-ide vterm where we put evil into emacs-state.
+            (local-set-key (kbd "C-c v") #'my/vterm-escape-to-copy-mode)))
+
+(with-eval-after-load 'vterm
+  (define-key vterm-copy-mode-map (kbd "i") #'my/vterm-exit-copy-mode)
+  (define-key vterm-copy-mode-map (kbd "q") #'my/vterm-exit-copy-mode))
+
+(use-package multi-vterm :ensure t)
 
 (use-package projectile
   :ensure t
@@ -270,8 +328,10 @@
 
 (setq byte-compile-warnings '(cl-functions))
 
-(evil-mode 1)
-(evil-collection-init)
+(if 1
+    (progn
+      (evil-mode 1)
+      (evil-collection-init)))
 
 (setq evil-want-fine-undo 'fine)
 
@@ -303,21 +363,6 @@
   (add-hook 'buffer-list-update-hook #'my/jump-to-bottom-on-enter)
   )
 
-
-(defun my-disable-visual-state-in-chat-buffers ()
-  "Disable visual state in ChatGPT buffers."
-  (when (and (string-match-p "\\*ChatGPT" (buffer-name))
-             (evil-visual-state-p))
-    (evil-exit-visual-state)))
-
-(add-hook 'evil-visual-state-entry-hook 'my-disable-visual-state-in-chat-buffers)
-
-(defun my-evil-visual-state-advice (orig-fun &rest args)
-  "Prevent entering visual state in ChatGPT buffer."
-  (unless (string-match-p "\\*ChatGPT" (buffer-name))
-    (apply orig-fun args)))
-
-(advice-add 'evil-visual-state :around #'my-evil-visual-state-advice)
 
 (defun my-repl-point-in-input-p ()
   "Return non-nil if point is in the current input area."
@@ -378,6 +423,11 @@
 (evil-global-set-key 'replace (kbd "M-o") 'ace-window)
 (evil-global-set-key 'normal  (kbd "M-o") 'ace-window)
 (evil-global-set-key 'visual  (kbd "M-o") 'ace-window)
+;; Also bind globally (outside evil) so ace-window still works in buffers
+;; where evil is off — e.g. the claude-code-ide vterm.
+(global-set-key (kbd "M-o") 'ace-window)
+(global-set-key (kbd "C-x o") 'ace-window)
+(global-set-key (kbd "C-x p") 'ace-window)
 
 (evil-global-set-key 'insert  (kbd "C-a") 'move-beginning-of-line)
 (evil-global-set-key 'replace (kbd "C-a") 'move-beginning-of-line)
@@ -504,11 +554,13 @@
         (my/update-evil-window-bg)))))
 
 ;; Hooks to track Evil mode transitions and window selection
-(add-hook 'evil-insert-state-entry-hook #'my/update-evil-bg-for-selected-window)
-(add-hook 'evil-insert-state-exit-hook #'my/update-evil-bg-for-selected-window)
-(add-hook 'window-selection-change-functions (lambda (_win) (my/update-evil-bg-for-selected-window)))
-(add-hook 'post-command-hook #'my/update-evil-bg-for-selected-window) ;; Catch ESC properly
-(add-hook 'emacs-startup-hook #'my/update-evil-bg-for-selected-window)
+(if 1
+    (progn
+      (add-hook 'evil-insert-state-entry-hook #'my/update-evil-bg-for-selected-window)
+      (add-hook 'evil-insert-state-exit-hook #'my/update-evil-bg-for-selected-window)
+      (add-hook 'window-selection-change-functions (lambda (_win) (my/update-evil-bg-for-selected-window)))
+      (add-hook 'post-command-hook #'my/update-evil-bg-for-selected-window) ;; Catch ESC properly
+      (add-hook 'emacs-startup-hook #'my/update-evil-bg-for-selected-window)))
 (add-hook 'emacs-startup-hook #'my/set-window-divider-bg-black)
 
 
@@ -641,6 +693,7 @@
   (load-file (expand-file-name file user-init-dir)))
 
 (setq-default show-trailing-whitespace t)
+(set-face-attribute 'trailing-whitespace nil :background "#3a3a3a")
 
 (show-paren-mode t)
 (global-set-key "\C-xp" (lambda () (interactive) (other-window -1)))  
@@ -863,6 +916,9 @@
 
 (add-hook 'lisp-mode-hook 'my-lisp-mode-customizations)
 
+(defun refresh-ssh-auth-sock ()
+  (interactive)
+  (setenv "SSH_AUTH_SOCK" (expand-file-name "~/.ssh/ssh_auth_sock")))
 
 
 
@@ -871,3 +927,101 @@
 (setq split-width-threshold 160)
 
 (put 'erase-buffer 'disabled nil)
+
+
+
+(defun toggle-let-let* ()
+  "Toggle between `let` and `let*` when point is inside a let/let* form."
+  (interactive)
+  (save-excursion
+    (let ((original-point (point))
+          (found nil))
+      ;; Walk up through enclosing sexps looking for let or let*
+      (condition-case nil
+          (while (not found)
+            (backward-up-list 1)
+            (save-excursion
+              (forward-char 1) ;; move past the opening paren
+              (let ((sym-start (point)))
+                (forward-sexp 1)
+                (let ((sym (buffer-substring-no-properties sym-start (point))))
+                  (cond
+                   ((string= sym "let")
+                    (goto-char sym-start)
+                    (delete-char 3)
+                    (insert "let*")
+                    (setq found t)
+                    (message "let → let*"))
+                   ((string= sym "let*")
+                    (goto-char sym-start)
+                    (delete-char 4)
+                    (insert "let")
+                    (setq found t)
+                    (message "let* → let")))))))
+        (scan-error
+         (unless found
+           (message "No enclosing let/let* form found")))))))
+
+(define-key lisp-mode-map (kbd "C-c *") #'toggle-let-let*)
+
+;; Prevent transpose-frame from duplicating claude-code-ide windows.
+;; Hide the claude-code window before transposing, restore it after.
+(defun my/transpose-frame-hide-claude ()
+  "Transpose frame, hiding and restoring side windows around transpose-frame."
+  (interactive)
+  (let ((sides-visible (window-with-parameter 'window-side)))
+    (when sides-visible
+      (window-toggle-side-windows))
+    (transpose-frame)
+    (when sides-visible
+      (window-toggle-side-windows))))
+
+
+(setq window-size-fixed nil)
+
+(add-to-list 'display-buffer-alist
+             '("\\*claude-code"
+               (display-buffer-in-direction)
+               (direction . right)
+               (window-width . 0.3)))
+
+(global-set-key (kbd "C-x |") 'my/transpose-frame-hide-claude)
+
+;; Toggle claude-code side window visibility
+(global-set-key (kbd "C-x /") 'claude-code-ide-menu)
+
+;; Never enable evil in *claude-code* buffers. `evil-buffer-regexps' is
+;; consulted by `turn-on-evil-mode' (via `evil-initial-state-for-buffer')
+;; before evil-local-mode is activated, so it wins the race against
+;; vterm-mode being in `evil-insert-state-modes'. A nil state means
+;; evil is not turned on at all.
+(with-eval-after-load 'evil
+  (add-to-list 'evil-buffer-regexps '("\\*claude-code" . nil)))
+
+;; Belt-and-suspenders: if anything forces evil on in a claude-code
+;; buffer after the fact, turn it back off.
+(add-hook 'vterm-mode-hook
+          (lambda ()
+            (when (string-match-p "claude-code" (buffer-name))
+              (when (bound-and-true-p evil-local-mode)
+                (evil-local-mode -1)))))
+;;
+;; Make the clipetty drag-selection automatically copy to the kill ring without needing M-w
+;;
+(setq mouse-drag-copy-region t)
+
+(xterm-mouse-mode)
+
+(global-clipetty-mode)
+
+(defun my/refresh-ssh-tty ()
+  "Pull current SSH_TTY from tmux into Emacs environment."
+  (interactive)
+  (when (getenv "TMUX")
+    (let ((tty (string-trim
+                (shell-command-to-string
+                 "tmux display-message -p '#{client_tty}'"))))
+      (setenv "SSH_TTY" tty)
+      (message "SSH_TTY updated to %s" tty))))
+
+(add-hook 'focus-in-hook #'my/refresh-ssh-tty)
