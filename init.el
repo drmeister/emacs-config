@@ -3,6 +3,9 @@
 
 (winner-mode 1)
 
+(setq highlight-nonselected-windows t)
+
+
 (print "Starting dot_emacs part")
 
 (if (file-exists-p "~/.emacs")
@@ -59,7 +62,7 @@
  '(custom-enabled-themes '(wheatgrass))
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages nil)
+ '(package-selected-packages '(claude-code-ide))
  '(package-vc-selected-packages
    '((claude-code-ide :url
                       "https://github.com/manzaltu/claude-code-ide.el")))
@@ -189,35 +192,56 @@
 (use-package which-key)
 (use-package neotree)
 
-(use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
-  :custom
-  ;; Use a regular (splittable, resizable) window instead of a side
-  ;; window. Side windows are non-resizable in Emacs — C-x ^ / C-x }
-  ;; and mouse-drag are disabled on them. This flip makes the Claude
-  ;; Code buffer obey standard window-management commands.
-  (claude-code-ide-use-side-window nil)
-  ;; Open the Claude Code buffer at the bottom spanning the full frame
-  ;; width. Ignored by the package when use-side-window is nil, but
-  ;; kept here because the display-buffer-alist entry below consults
-  ;; the same placement intent.
-  (claude-code-ide-window-side 'bottom)
-  :config
-  (claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
-  ;; Force the Claude Code buffer into a full-width bottom window via
-  ;; display-buffer-alist. This runs independently of the package's
-  ;; own placement logic — useful if the `use-side-window = nil` path
-  ;; doesn't on its own put the window where you want it. Match on
-  ;; the buffer-name pattern the package uses ("*claude-code*" and
-  ;; variants like "*claude-code:/path/*"). Using
-  ;; display-buffer-below-selected keeps the window splittable and
-  ;; resizable unlike display-buffer-in-side-window.
-  (add-to-list
-   'display-buffer-alist
-   '("\\*claude-code"
-     (display-buffer-reuse-window display-buffer-at-bottom)
-     (window-height . 0.3))))
+(if nil
+    (use-package claude-code-ide
+      :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+      :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+      :custom
+      ;; Use a regular (splittable, resizable) window instead of a side
+      ;; window. Side windows are non-resizable in Emacs — C-x ^ / C-x }
+      ;; and mouse-drag are disabled on them. This flip makes the Claude
+      ;; Code buffer obey standard window-management commands.
+      (claude-code-ide-use-side-window nil)
+      ;; Open the Claude Code buffer at the bottom spanning the full frame
+      ;; width. Ignored by the package when use-side-window is nil, but
+      ;; kept here because the display-buffer-alist entry below consults
+      ;; the same placement intent.
+      (claude-code-ide-window-side 'bottom)
+      :config
+      (claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
+      ;; Force the Claude Code buffer into a full-width bottom window via
+      ;; display-buffer-alist. This runs independently of the package's
+      ;; own placement logic — useful if the `use-side-window = nil` path
+      ;; doesn't on its own put the window where you want it. Match on
+      ;; the buffer-name pattern the package uses ("*claude-code*" and
+      ;; variants like "*claude-code:/path/*"). Using
+      ;; display-buffer-below-selected keeps the window splittable and
+      ;; resizable unlike display-buffer-in-side-window.
+      (add-to-list
+       'display-buffer-alist
+       '("\\*claude-code"
+         (display-buffer-reuse-window display-buffer-at-bottom)
+         (window-height . 0.3)))
+      )
+  (use-package claude-code-ide
+    :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+    ;; Force the Claude Code buffer into a full-width bottom window via
+    ;; display-buffer-alist. This runs independently of the package's
+    ;; own placement logic — useful if the `use-side-window = nil` path
+    ;; doesn't on its own put the window where you want it. Match on
+    ;; the buffer-name pattern the package uses ("*claude-code*" and
+    ;; variants like "*claude-code:/path/*"). Using
+    ;; display-buffer-below-selected keeps the window splittable and
+    ;; resizable unlike display-buffer-in-side-window.
+    (add-to-list
+     'display-buffer-alist
+     '("\\*claude-code"
+       (display-buffer-in-side-window)
+       (side . right)
+       (window-width . 90)
+       (preserve-size . (t . nil))))
+    ))
+
 
 ;; Claude Code vterm: start in insert state and disable trailing whitespace display
 ;; meow consults `meow-mode-state-list' when entering a major mode.
@@ -252,10 +276,12 @@
   :ensure t
 ;;  :pin melpa-stable
   :init (progn
-          (projectile-mode +1)
-          (setq projectile-project-search-path '("~/common-lisp/")))
+          (projectile-mode +1))
   :bind (:map projectile-mode-map
               ("C-c p" . projectile-command-map)))
+
+(projectile-add-known-project "~/common-lisp/tlt/foldamer/")
+(projectile-add-known-project "~/common-lisp/tlt/open-force-field/")
 
 ;(load "~/.emacs.d/mgl-pax.el")
 ;(mgl-pax-hijack-slime-doc-keys)
@@ -327,17 +353,11 @@
 ;;;----------------------------------------------------------------------------
 ;;; Meow modal editing setup
 ;;;
-;;; Standard qwerty bindings from meow's README, with two deviations to
-;;; preserve muscle memory from the prior evil setup:
+;;; Standard qwerty bindings from meow's README.
 ;;;
-;;;   * `g' is rebound as a prefix for windmove + recompile (see
-;;;     `my/meow-g-map' below), so the evil-era `g j/h/k/l/c'
-;;;     bindings keep working. Meow's default
-;;;     `meow-cancel-selection' is moved to `M-g'.
-;;;   * Several Emacs editing keys (C-a/C-e/C-k/C-d/C-y, M-o, M-.)
-;;;     are bound globally further down so they work in every meow
-;;;     state and in vterm. They are not redefined inside meow's
-;;;     state keymaps.
+;;; Several Emacs editing keys (C-a/C-e/C-k/C-d/C-y, M-o, M-.) are
+;;; bound globally further down so they work in every meow state and
+;;; in vterm. They are not redefined inside meow's state keymaps.
 ;;;
 ;;; There is no evil-collection equivalent for meow — modes meow
 ;;; doesn't know about default to MOTION state, which leaves the
@@ -394,12 +414,12 @@
    '("b" . meow-back-word)
    '("B" . meow-back-symbol)
    '("c" . meow-change)
-   '("d" . meow-delete)
+   '("d" . meow-kill)
    '("D" . meow-backward-delete)
    '("e" . meow-next-word)
    '("E" . meow-next-symbol)
    '("f" . meow-find)
-   ;; `g' is a prefix for windmove + recompile (see `my/meow-g-map').
+   '("g" . meow-cancel-selection)
    '("G" . meow-grab)
    '("h" . meow-left)
    '("H" . meow-left-expand)
@@ -419,8 +439,8 @@
    '("q" . meow-quit)
    '("Q" . meow-goto-line)
    '("r" . meow-replace)
-   '("R" . meow-swap-grab)
-   '("s" . meow-kill)
+   '("R" . my/meow-replace-char)
+   '("s" . meow-delete)
    '("t" . meow-till)
    '("u" . meow-undo)
    '("U" . meow-undo-in-selection)
@@ -433,23 +453,28 @@
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
    '("'" . repeat)
+   '("%" . my/match-paren)
    '("<escape>" . ignore)))
+
+(defun my/match-paren (arg)
+  "Jump to the matching paren if on one; otherwise insert %."
+  (interactive "p")
+  (cond ((looking-at "\\s(") (forward-sexp 1) (backward-char))
+        ((looking-back "\\s)" 1) (backward-sexp 1))
+        ((looking-at "\\s)") (forward-char) (backward-sexp 1))
+        (t (self-insert-command arg))))
+
+(defun my/meow-replace-char ()
+  "Vim-style r: replace the character at point with the next typed character."
+  (interactive)
+  (let ((char (read-char "Replace with: ")))
+    (delete-char 1)
+    (insert-char char)
+    (backward-char)))
 
 (require 'meow)
 (my/meow-setup)
 (meow-global-mode 1)
-
-;; g-prefix map in meow normal state: windmove + recompile (ex-evil `g j/h/k/l/c').
-(defvar my/meow-g-map (make-sparse-keymap)
-  "Prefix map bound to `g' in meow normal state.")
-(define-key my/meow-g-map (kbd "j") #'windmove-down)
-(define-key my/meow-g-map (kbd "h") #'windmove-left)
-(define-key my/meow-g-map (kbd "k") #'windmove-up)
-(define-key my/meow-g-map (kbd "l") #'windmove-right)
-(define-key my/meow-g-map (kbd "c") #'recompile)
-(define-key meow-normal-state-keymap (kbd "g") my/meow-g-map)
-;; meow's default `meow-cancel-selection' (formerly on `g') is moved to `M-g'.
-(define-key meow-normal-state-keymap (kbd "M-g") #'meow-cancel-selection)
 
 (defun pull-next-sexp-into-current ()
   (interactive)
@@ -585,8 +610,12 @@
       (set-face-background face "#000000"))))
 
 (defun my/update-meow-window-bg ()
-  "Set window background color based on meow state."
+  "Set window background color based on meow state.
+vterm-mode buffers are always green when current (terminals are
+effectively `insert' even in meow's motion or with meow disabled,
+as in the claude-code-ide vterm)."
   (let ((color (cond
+                ((derived-mode-p 'vterm-mode)        "#003000")
                 ((bound-and-true-p meow-insert-mode) "#003000")
                 ((bound-and-true-p meow-motion-mode) "#000030")
                 ((bound-and-true-p meow-keypad-mode) "#303000")
@@ -1084,3 +1113,16 @@
       (message "SSH_TTY updated to %s" tty))))
 
 (add-hook 'focus-in-hook #'my/refresh-ssh-tty)
+
+
+(defun my/claude-remember-width ()
+  "Persist current claude-code-ide window width."
+  (when-let* ((win (get-buffer-window
+                    (seq-find (lambda (b)
+                                (string-prefix-p "*claude-code" (buffer-name b)))
+                              (buffer-list)))))
+    (setq claude-code-ide-window-width (window-total-width win))))
+
+(add-hook 'window-size-change-functions
+          (lambda (_frame) (my/claude-remember-width)))
+
