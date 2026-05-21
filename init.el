@@ -324,6 +324,27 @@
   (add-to-list 'sly-contribs 'sly-fancy)
   )
 
+;;; SLIME support (secondary; SLY remains the primary CL environment).
+;;; Loaded so that `M-x slime' works, but `slime-mode' is NOT added to
+;;; `lisp-mode-hook' — that would conflict with `sly-mode' in .lisp buffers.
+;;; To use SLIME in a buffer, disable sly-mode locally then `M-x slime-mode'.
+(when t
+  (add-to-list 'load-path "~/Development/slime")
+  (add-to-list 'load-path "~/Development/slime/contrib")
+  (require 'slime-autoloads)
+  (with-eval-after-load 'slime
+    (message "configuring slime-fancy")
+    (slime-setup '(slime-fancy))
+    ;; slime-setup adds `slime-lisp-mode-hook' to `lisp-mode-hook', which
+    ;; auto-enables `slime-mode'. Remove it so SLY stays in charge of .lisp
+    ;; buffers. `M-x slime' still starts a SLIME session on demand.
+    (remove-hook 'lisp-mode-hook 'slime-lisp-mode-hook))
+  ;; Pick implementation at `M-x slime' time. First entry is the default
+  ;; when invoked with a prefix argument; `C-u M-x slime' lets you choose.
+  (setq slime-lisp-implementations
+        '((sbcl  ("sbcl"))
+          (cando ("~/Development/cando/build/boehmprecise/cando")))))
+
 
 
 (setq byte-compile-warnings '(cl-functions))
@@ -401,7 +422,14 @@
   (add-hook 'post-command-hook #'my-repl-exit-insert-when-not-at-eob nil t)
   (add-hook 'post-command-hook #'my-repl-enter-insert-when-at-eob nil t))
 
-(add-hook 'shell-mode-hook #'my-enable-repl-insert-guard)
+;; For shell-mode: start in insert state at end-of-buffer and stay there until
+;; the user hits ESC. The old `my-enable-repl-insert-guard' flipped state on
+;; every post-command based on point position; we no longer want that here.
+(add-to-list 'evil-insert-state-modes 'shell-mode)
+(defun my-shell-goto-eob ()
+  (goto-char (point-max)))
+(add-hook 'shell-mode-hook #'my-shell-goto-eob)
+
 (add-hook 'sly-mrepl-mode-hook #'my-enable-repl-insert-guard)
 
 ;;; Turn on dispatch always when M-o is activated
@@ -450,10 +478,20 @@
 (evil-global-set-key 'normal  (kbd "C-d") 'evil-delete-char)
 (evil-global-set-key 'visual  (kbd "C-d") 'evil-delete-char)
 
-(evil-global-set-key 'insert  (kbd "M-.") 'sly-edit-definition)
-(evil-global-set-key 'replace (kbd "M-.") 'sly-edit-definition)
-(evil-global-set-key 'normal  (kbd "M-.") 'sly-edit-definition)
-(evil-global-set-key 'visual  (kbd "M-.") 'sly-edit-definition)
+;; Dispatch M-. based on which CL minor mode is active in the current buffer.
+;; Both SLY and SLIME are loadable; either may be the live one in a given
+;; buffer. SLIME wins if both are somehow on, since SLY is the global default
+;; and SLIME-on usually means the user opted in.
+(defun my-edit-definition-dispatch ()
+  (interactive)
+  (cond ((bound-and-true-p slime-mode) (call-interactively 'slime-edit-definition))
+        ((bound-and-true-p sly-mode)   (call-interactively 'sly-edit-definition))
+        (t                             (call-interactively 'xref-find-definitions))))
+
+(evil-global-set-key 'insert  (kbd "M-.") 'my-edit-definition-dispatch)
+(evil-global-set-key 'replace (kbd "M-.") 'my-edit-definition-dispatch)
+(evil-global-set-key 'normal  (kbd "M-.") 'my-edit-definition-dispatch)
+(evil-global-set-key 'visual  (kbd "M-.") 'my-edit-definition-dispatch)
 
 (evil-global-set-key 'insert  (kbd "C-r") 'isearch-backward)
 (evil-global-set-key 'replace (kbd "C-r") 'isearch-backward)
