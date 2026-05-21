@@ -3,9 +3,6 @@
 
 (winner-mode 1)
 
-(setq highlight-nonselected-windows t)
-
-
 (print "Starting dot_emacs part")
 
 (if (file-exists-p "~/.emacs")
@@ -60,9 +57,10 @@
    ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9"
     "white"])
  '(custom-enabled-themes '(wheatgrass))
+ '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages '(claude-code-ide))
+ '(package-selected-packages nil)
  '(package-vc-selected-packages
    '((claude-code-ide :url
                       "https://github.com/manzaltu/claude-code-ide.el")))
@@ -186,84 +184,66 @@
 (use-package magit)
 (use-package macrostep)
 (use-package git-timemachine)
-(use-package meow)
+(use-package evil)
+(use-package evil-collection)
 (use-package rust-mode)
 (use-package ace-window)
 (use-package which-key)
+(use-package evil-terminal-cursor-changer)
 (use-package neotree)
 
-(if nil
-    (use-package claude-code-ide
-      :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-      :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
-      :custom
-      ;; Use a regular (splittable, resizable) window instead of a side
-      ;; window. Side windows are non-resizable in Emacs — C-x ^ / C-x }
-      ;; and mouse-drag are disabled on them. This flip makes the Claude
-      ;; Code buffer obey standard window-management commands.
-      (claude-code-ide-use-side-window nil)
-      ;; Open the Claude Code buffer at the bottom spanning the full frame
-      ;; width. Ignored by the package when use-side-window is nil, but
-      ;; kept here because the display-buffer-alist entry below consults
-      ;; the same placement intent.
-      (claude-code-ide-window-side 'bottom)
-      :config
-      (claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
-      ;; Force the Claude Code buffer into a full-width bottom window via
-      ;; display-buffer-alist. This runs independently of the package's
-      ;; own placement logic — useful if the `use-side-window = nil` path
-      ;; doesn't on its own put the window where you want it. Match on
-      ;; the buffer-name pattern the package uses ("*claude-code*" and
-      ;; variants like "*claude-code:/path/*"). Using
-      ;; display-buffer-below-selected keeps the window splittable and
-      ;; resizable unlike display-buffer-in-side-window.
-      (add-to-list
-       'display-buffer-alist
-       '("\\*claude-code"
-         (display-buffer-reuse-window display-buffer-at-bottom)
-         (window-height . 0.3)))
-      )
-  (use-package claude-code-ide
-    :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-    ;; Force the Claude Code buffer into a full-width bottom window via
-    ;; display-buffer-alist. This runs independently of the package's
-    ;; own placement logic — useful if the `use-side-window = nil` path
-    ;; doesn't on its own put the window where you want it. Match on
-    ;; the buffer-name pattern the package uses ("*claude-code*" and
-    ;; variants like "*claude-code:/path/*"). Using
-    ;; display-buffer-below-selected keeps the window splittable and
-    ;; resizable unlike display-buffer-in-side-window.
-    (add-to-list
-     'display-buffer-alist
-     '("\\*claude-code"
-       (display-buffer-in-side-window)
-       (side . right)
-       (window-width . 90)
-       (preserve-size . (t . nil))))
-    ))
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :custom
+  ;; Use a regular (splittable, resizable) window instead of a side
+  ;; window. Side windows are non-resizable in Emacs — C-x ^ / C-x }
+  ;; and mouse-drag are disabled on them. This flip makes the Claude
+  ;; Code buffer obey standard window-management commands.
+  (claude-code-ide-use-side-window nil)
+  ;; Open the Claude Code buffer at the bottom spanning the full frame
+  ;; width. Ignored by the package when use-side-window is nil, but
+  ;; kept here because the display-buffer-alist entry below consults
+  ;; the same placement intent.
+  (claude-code-ide-window-side 'bottom)
+  :config
+  (claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
+  ;; Force the Claude Code buffer into a full-width bottom window via
+  ;; display-buffer-alist. This runs independently of the package's
+  ;; own placement logic — useful if the `use-side-window = nil` path
+  ;; doesn't on its own put the window where you want it. Match on
+  ;; the buffer-name pattern the package uses ("*claude-code*" and
+  ;; variants like "*claude-code:/path/*"). Using
+  ;; display-buffer-below-selected keeps the window splittable and
+  ;; resizable unlike display-buffer-in-side-window.
+  (add-to-list
+   'display-buffer-alist
+   '("\\*claude-code"
+     (display-buffer-reuse-window display-buffer-at-bottom)
+     (window-height . 0.3))))
 
-
-;; Claude Code vterm: start in insert state and disable trailing whitespace display
-;; meow consults `meow-mode-state-list' when entering a major mode.
-(with-eval-after-load 'meow
-  (add-to-list 'meow-mode-state-list '(vterm-mode . insert)))
+;; Claude Code vterm: start in insert mode and disable trailing whitespace display
+(add-to-list 'evil-insert-state-modes 'vterm-mode)
 (add-hook 'vterm-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
 
-;; C-c v in vterm enters copy mode for scrolling; i or q exits back to insert
+;; C-c v in vterm enters copy mode for scrolling; q exits back to insert
 (defun my/vterm-escape-to-copy-mode ()
-  "Enter vterm-copy-mode and meow normal state for scrolling."
+  "Enter vterm-copy-mode and evil normal state for scrolling."
   (interactive)
   (vterm-copy-mode 1)
-  (when (bound-and-true-p meow-mode) (meow-normal-mode)))
+  (evil-normal-state))
 
 (defun my/vterm-exit-copy-mode ()
-  "Exit vterm-copy-mode and return to meow insert state."
+  "Exit vterm-copy-mode and return to evil insert state."
   (interactive)
   (vterm-copy-mode -1)
-  (when (bound-and-true-p meow-mode) (meow-insert-mode)))
+  (evil-insert-state))
 
 (add-hook 'vterm-mode-hook
           (lambda ()
+            (evil-local-set-key 'insert (kbd "C-c v") #'my/vterm-escape-to-copy-mode)
+            ;; Also bind locally (outside evil) so it works in the
+            ;; claude-code-ide vterm where we put evil into emacs-state.
             (local-set-key (kbd "C-c v") #'my/vterm-escape-to-copy-mode)))
 
 (with-eval-after-load 'vterm
@@ -276,12 +256,10 @@
   :ensure t
 ;;  :pin melpa-stable
   :init (progn
-          (projectile-mode +1))
+          (projectile-mode +1)
+          (setq projectile-project-search-path '("~/common-lisp/")))
   :bind (:map projectile-mode-map
               ("C-c p" . projectile-command-map)))
-
-(projectile-add-known-project "~/common-lisp/tlt/foldamer/")
-(projectile-add-known-project "~/common-lisp/tlt/open-force-field/")
 
 ;(load "~/.emacs.d/mgl-pax.el")
 ;(mgl-pax-hijack-slime-doc-keys)
@@ -350,131 +328,12 @@
 
 (setq byte-compile-warnings '(cl-functions))
 
-;;;----------------------------------------------------------------------------
-;;; Meow modal editing setup
-;;;
-;;; Standard qwerty bindings from meow's README.
-;;;
-;;; Several Emacs editing keys (C-a/C-e/C-k/C-d/C-y, M-o, M-.) are
-;;; bound globally further down so they work in every meow state and
-;;; in vterm. They are not redefined inside meow's state keymaps.
-;;;
-;;; There is no evil-collection equivalent for meow — modes meow
-;;; doesn't know about default to MOTION state, which leaves the
-;;; mode's own keybindings intact (dired, magit, help, etc.).
-;;;----------------------------------------------------------------------------
+(if 1
+    (progn
+      (evil-mode 1)
+      (evil-collection-init)))
 
-(defun my/meow-toggle-kmacro ()
-  "Start a keyboard macro, or end the current one — vim/evil-style `q'."
-  (interactive)
-  (if defining-kbd-macro
-      (meow-end-kmacro)
-    (kmacro-start-macro nil)))
-
-(defun my/meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-  (meow-motion-overwrite-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("<escape>" . ignore))
-  (meow-leader-define-key
-   '("j" . "H-j")
-   '("k" . "H-k")
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
-  (meow-normal-define-key
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
-   '("[" . meow-beginning-of-thing)
-   '("]" . meow-end-of-thing)
-   '("a" . meow-append)
-   '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("c" . meow-change)
-   '("d" . meow-kill)
-   '("D" . meow-backward-delete)
-   '("e" . meow-next-word)
-   '("E" . meow-next-symbol)
-   '("f" . meow-find)
-   '("g" . meow-cancel-selection)
-   '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   '("i" . meow-insert)
-   '("I" . meow-open-above)
-   '("j" . meow-next)
-   '("J" . meow-next-expand)
-   '("k" . meow-prev)
-   '("K" . meow-prev-expand)
-   '("l" . meow-right)
-   '("L" . meow-right-expand)
-   '("m" . meow-join)
-   '("n" . meow-search)
-   '("o" . meow-block)
-   '("O" . meow-to-block)
-   '("p" . meow-yank)
-   '("q" . meow-quit)
-   '("Q" . meow-goto-line)
-   '("r" . meow-replace)
-   '("R" . my/meow-replace-char)
-   '("s" . meow-delete)
-   '("t" . meow-till)
-   '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
-   '("v" . meow-visit)
-   '("w" . meow-mark-word)
-   '("W" . meow-mark-symbol)
-   '("x" . meow-line)
-   '("X" . meow-goto-line)
-   '("y" . meow-save)
-   '("Y" . meow-sync-grab)
-   '("z" . meow-pop-selection)
-   '("'" . repeat)
-   '("%" . my/match-paren)
-   '("<escape>" . ignore)))
-
-(defun my/match-paren (arg)
-  "Jump to the matching paren if on one; otherwise insert %."
-  (interactive "p")
-  (cond ((looking-at "\\s(") (forward-sexp 1) (backward-char))
-        ((looking-back "\\s)" 1) (backward-sexp 1))
-        ((looking-at "\\s)") (forward-char) (backward-sexp 1))
-        (t (self-insert-command arg))))
-
-(defun my/meow-replace-char ()
-  "Vim-style r: replace the character at point with the next typed character."
-  (interactive)
-  (let ((char (read-char "Replace with: ")))
-    (delete-char 1)
-    (insert-char char)
-    (backward-char)))
-
-(require 'meow)
-(my/meow-setup)
-(meow-global-mode 1)
+(setq evil-want-fine-undo 'fine)
 
 (defun pull-next-sexp-into-current ()
   (interactive)
@@ -518,24 +377,24 @@
              (not (my-repl-point-in-input-p)))
     (goto-char (point-max))))
 
-(add-hook 'meow-insert-enter-hook #'my-move-repl-point-to-end-on-insert)
+(add-hook 'evil-insert-state-entry-hook #'my-move-repl-point-to-end-on-insert)
 
 (defun my-repl-exit-insert-when-not-at-eob ()
   "In shell/SLY REPL, drop to normal state when leaving input."
   (when (and (or (derived-mode-p 'shell-mode)
                  (derived-mode-p 'sly-mrepl-mode))
-             (bound-and-true-p meow-insert-mode)
+             (evil-insert-state-p)
              (not (my-repl-point-in-input-p)))
-    (meow-normal-mode)))
+    (evil-normal-state)))
 
 (defun my-repl-enter-insert-when-at-eob ()
   "In shell/SLY REPL, enter insert state automatically at end of buffer."
   (when (and (or (derived-mode-p 'shell-mode)
                  (derived-mode-p 'sly-mrepl-mode))
              (not (minibufferp))
-             (not (bound-and-true-p meow-insert-mode))
+             (not (evil-insert-state-p))
              (eobp))
-    (meow-insert-mode)))
+    (evil-insert-state)))
 
 (defun my-enable-repl-insert-guard ()
   "Enable buffer-local guard to keep insert inside prompt input."
@@ -546,59 +405,105 @@
 (add-hook 'sly-mrepl-mode-hook #'my-enable-repl-insert-guard)
 
 ;;; Turn on dispatch always when M-o is activated
+
 (setq aw-dispatch-always t)
 
-;; Window management — global so they work in every meow state and in vterm.
-(global-set-key (kbd "M-o")   'ace-window)
+;;;(evil-global-set-key 'insert  (kbd "C-M-i") 'pull-next-sexp-into-current)
+(evil-global-set-key 'insert  (kbd "C-x o") 'ace-window)
+(evil-global-set-key 'replace (kbd "C-x o") 'ace-window)
+(evil-global-set-key 'normal  (kbd "C-x o") 'ace-window)
+(evil-global-set-key 'visual  (kbd "C-x o") 'ace-window)
+
+(evil-global-set-key 'insert  (kbd "C-x p") 'ace-window)
+(evil-global-set-key 'replace (kbd "C-x p") 'ace-window)
+(evil-global-set-key 'normal  (kbd "C-x p") 'ace-window)
+(evil-global-set-key 'visual  (kbd "C-x p") 'ace-window)
+
+(evil-global-set-key 'insert  (kbd "M-o") 'ace-window)
+(evil-global-set-key 'replace (kbd "M-o") 'ace-window)
+(evil-global-set-key 'normal  (kbd "M-o") 'ace-window)
+(evil-global-set-key 'visual  (kbd "M-o") 'ace-window)
+;; Also bind globally (outside evil) so ace-window still works in buffers
+;; where evil is off — e.g. the claude-code-ide vterm.
+(global-set-key (kbd "M-o") 'ace-window)
 (global-set-key (kbd "C-x o") 'ace-window)
 (global-set-key (kbd "C-x p") 'ace-window)
 
-;; M-. — Lisp definition jump. (Meow's `meow-visit' simulates M-. internally,
-;; so this binding also gets used by pressing `v' in meow normal state.)
-(global-set-key (kbd "M-.") 'sly-edit-definition)
+(evil-global-set-key 'insert  (kbd "C-a") 'move-beginning-of-line)
+(evil-global-set-key 'replace (kbd "C-a") 'move-beginning-of-line)
+(evil-global-set-key 'normal  (kbd "C-a") 'move-beginning-of-line)
+(evil-global-set-key 'visual  (kbd "C-a") 'move-beginning-of-line)
 
-;; Page scroll on C-b / C-f. Meow simulates keystrokes for its motion
-;; commands (see `meow--kbd-*' in meow-var.el): meow-left/right would
-;; otherwise press C-b/C-f and inherit our scroll rebinding. Redirect
-;; meow's char-motion simulation to the arrow keys (which default to
-;; `left-char'/`right-char') so C-b/C-f are free for paging.
-(setq meow--kbd-backward-char "<left>")
-(setq meow--kbd-forward-char  "<right>")
-(global-set-key (kbd "C-b") 'scroll-down-command)
-(global-set-key (kbd "C-f") 'scroll-up-command)
 
-;; Cursor shape per meow state (port of evil-{insert,normal}-state-cursor).
-;; Color is set in hooks below since meow's cursor-type vars only carry shape.
-(setq meow-cursor-type-normal 'box)
-(setq meow-cursor-type-insert '(bar . 2))
-(setq meow-cursor-type-motion 'box)
-(setq meow-cursor-type-keypad 'hollow)
-(setq meow-cursor-type-beacon 'box)
-(add-hook 'meow-insert-enter-hook (lambda () (set-cursor-color "chartreuse3")))
-(add-hook 'meow-insert-exit-hook  (lambda () (set-cursor-color "white")))
+(evil-global-set-key 'insert  (kbd "C-e") 'move-end-of-line)
+(evil-global-set-key 'replace (kbd "C-e") 'move-end-of-line)
+(evil-global-set-key 'normal  (kbd "C-e") 'move-end-of-line)
+(evil-global-set-key 'visual  (kbd "C-e") 'move-end-of-line)
+
+(evil-global-set-key 'insert  (kbd "C-k") 'kill-line)
+(evil-global-set-key 'replace (kbd "C-k") 'kill-line)
+(evil-global-set-key 'normal  (kbd "C-k") 'kill-line)
+(evil-global-set-key 'visual  (kbd "C-k") 'kill-line)
+
+(evil-global-set-key 'insert  (kbd "C-d") 'evil-delete-char)
+(evil-global-set-key 'replace (kbd "C-d") 'evil-delete-char)
+(evil-global-set-key 'normal  (kbd "C-d") 'evil-delete-char)
+(evil-global-set-key 'visual  (kbd "C-d") 'evil-delete-char)
+
+(evil-global-set-key 'insert  (kbd "M-.") 'sly-edit-definition)
+(evil-global-set-key 'replace (kbd "M-.") 'sly-edit-definition)
+(evil-global-set-key 'normal  (kbd "M-.") 'sly-edit-definition)
+(evil-global-set-key 'visual  (kbd "M-.") 'sly-edit-definition)
+
+(evil-global-set-key 'insert  (kbd "C-r") 'isearch-backward)
+(evil-global-set-key 'replace (kbd "C-r") 'isearch-backward)
+(evil-global-set-key 'normal  (kbd "C-r") 'isearch-backward)
+(evil-global-set-key 'visual  (kbd "C-r") 'isearch-backward)
+
+(evil-global-set-key 'insert  (kbd "C-b") 'evil-scroll-page-up)
+(evil-global-set-key 'replace (kbd "C-b") 'evil-scroll-page-up)
+(evil-global-set-key 'normal  (kbd "C-b") 'evil-scroll-page-up)
+(evil-global-set-key 'visual  (kbd "C-b") 'evil-scroll-page-up)
+
+(evil-global-set-key 'insert  (kbd "C-f") 'evil-scroll-page-down)
+(evil-global-set-key 'replace (kbd "C-f") 'evil-scroll-page-down)
+(evil-global-set-key 'normal  (kbd "C-f") 'evil-scroll-page-down)
+(evil-global-set-key 'visual  (kbd "C-f") 'evil-scroll-page-down)
+
+(evil-global-set-key 'insert  (kbd "C-y") 'yank)
+(evil-global-set-key 'replace (kbd "C-y") 'yank)
+(evil-global-set-key 'normal  (kbd "C-y") 'yank)
+(evil-global-set-key 'visual  (kbd "C-y") 'yank)
+
+(evil-global-set-key 'motion (kbd "g c") 'recompile)
+
+(evil-global-set-key 'motion (kbd "g j") 'windmove-down)
+(evil-global-set-key 'motion (kbd "g h") 'windmove-left)
+(evil-global-set-key 'motion (kbd "g k") 'windmove-up)
+(evil-global-set-key 'motion (kbd "g l") 'windmove-right)
+
+(setq evil-insert-state-cursor '("chartreuse3" bar))
+(setq evil-normal-state-cursor '("white" box))
+
+(unless (display-graphic-p)
+  (require 'evil-terminal-cursor-changer)
+  (evil-terminal-cursor-changer-activate))
 
 ;;;----------------------------------------------------------------------------
 
-;;; Per-buffer background coloring driven by meow state.
-;;; Current buffer tinted by state; all other visible buffers forced black.
-;;;   insert  -> #003000 (green)
-;;;   normal  -> #300000 (red)        ;; default fallback
-;;;   motion  -> #000030 (blue)
-;;;   keypad  -> #303000 (yellow)
+(defvar-local my/evil-bg-remap-cookies nil)
+(defvar my/evil-bg-last-buffer nil)
 
-(defvar-local my/meow-bg-remap-cookies nil)
-(defvar my/meow-bg-last-buffer nil)
-
-(defun my/clear-meow-bg-remaps ()
-  "Remove any buffer-local background remaps applied for meow state."
-  (when my/meow-bg-remap-cookies
-    (mapc #'face-remap-remove-relative my/meow-bg-remap-cookies)
-    (setq my/meow-bg-remap-cookies nil)))
+(defun my/clear-evil-bg-remaps ()
+  "Remove any buffer-local background remaps applied for Evil state."
+  (when my/evil-bg-remap-cookies
+    (mapc #'face-remap-remove-relative my/evil-bg-remap-cookies)
+    (setq my/evil-bg-remap-cookies nil)))
 
 (defun my/set-buffer-bg-color (color)
   "Apply a buffer-local background COLOR to relevant faces."
-  (my/clear-meow-bg-remaps)
-  (setq my/meow-bg-remap-cookies
+  (my/clear-evil-bg-remaps)
+  (setq my/evil-bg-remap-cookies
         (mapcar (lambda (face)
                   (face-remap-add-relative face `(:background ,color)))
                 '(default fringe line-number line-number-current-line))))
@@ -609,32 +514,28 @@
     (when (facep face)
       (set-face-background face "#000000"))))
 
-(defun my/update-meow-window-bg ()
-  "Set window background color based on meow state.
-vterm-mode buffers are always green when current (terminals are
-effectively `insert' even in meow's motion or with meow disabled,
-as in the claude-code-ide vterm)."
-  (let ((color (cond
-                ((derived-mode-p 'vterm-mode)        "#003000")
-                ((bound-and-true-p meow-insert-mode) "#003000")
-                ((bound-and-true-p meow-motion-mode) "#000030")
-                ((bound-and-true-p meow-keypad-mode) "#303000")
-                (t                                    "#300000"))))
+(defun my/update-evil-window-bg ()
+  "Set window background color based on Evil state."
+  (let* ((color (if (eq evil-state 'insert)
+                    "#003000"
+                  (if (eq evil-state 'replace)
+                      "#000030"
+                    "#300000"))))
     (my/set-buffer-bg-color color)))
 
-(defun my/update-meow-bg-for-selected-window (&rest _)
-  "Only the current buffer gets meow state color; others are black."
+(defun my/update-evil-bg-for-selected-window ()
+  "Only the current buffer gets Evil state color; others are black."
   ;; Reset if the tracked buffer died
-  (unless (buffer-live-p my/meow-bg-last-buffer)
-    (setq my/meow-bg-last-buffer nil))
+  (unless (buffer-live-p my/evil-bg-last-buffer)
+    (setq my/evil-bg-last-buffer nil))
 
   (let ((curr (current-buffer)))
     ;; When moving away from the previous buffer, force it to black
-    (unless (eq curr my/meow-bg-last-buffer)
-      (when (and my/meow-bg-last-buffer (buffer-live-p my/meow-bg-last-buffer))
-        (with-current-buffer my/meow-bg-last-buffer
+    (unless (eq curr my/evil-bg-last-buffer)
+      (when (and my/evil-bg-last-buffer (buffer-live-p my/evil-bg-last-buffer))
+        (with-current-buffer my/evil-bg-last-buffer
           (my/set-buffer-bg-color "#000000")))
-      (setq my/meow-bg-last-buffer curr))
+      (setq my/evil-bg-last-buffer curr))
 
     ;; Blacken all visible non-current buffers
     (walk-windows
@@ -646,22 +547,21 @@ as in the claude-code-ide vterm)."
                (my/set-buffer-bg-color "#000000"))))))
      nil t)
 
-    ;; Color the current buffer according to meow state (compilation stays black)
+    ;; Color the current buffer according to Evil state (compilation stays black)
     (with-current-buffer curr
       (if (string-match-p "compilation\\*\\'" (buffer-name))
           (my/set-buffer-bg-color "#000000")
-        (my/update-meow-window-bg)))))
+        (my/update-evil-window-bg)))))
 
-;; Hooks to track meow state transitions and window selection.
-(add-hook 'meow-insert-enter-hook #'my/update-meow-bg-for-selected-window)
-(add-hook 'meow-insert-exit-hook  #'my/update-meow-bg-for-selected-window)
-(add-hook 'meow-normal-mode-hook  #'my/update-meow-bg-for-selected-window)
-(add-hook 'meow-motion-mode-hook  #'my/update-meow-bg-for-selected-window)
-(add-hook 'meow-keypad-mode-hook  #'my/update-meow-bg-for-selected-window)
-(add-hook 'window-selection-change-functions #'my/update-meow-bg-for-selected-window)
-(add-hook 'post-command-hook      #'my/update-meow-bg-for-selected-window) ;; belt-and-suspenders
-(add-hook 'emacs-startup-hook     #'my/update-meow-bg-for-selected-window)
-(add-hook 'emacs-startup-hook     #'my/set-window-divider-bg-black)
+;; Hooks to track Evil mode transitions and window selection
+(if 1
+    (progn
+      (add-hook 'evil-insert-state-entry-hook #'my/update-evil-bg-for-selected-window)
+      (add-hook 'evil-insert-state-exit-hook #'my/update-evil-bg-for-selected-window)
+      (add-hook 'window-selection-change-functions (lambda (_win) (my/update-evil-bg-for-selected-window)))
+      (add-hook 'post-command-hook #'my/update-evil-bg-for-selected-window) ;; Catch ESC properly
+      (add-hook 'emacs-startup-hook #'my/update-evil-bg-for-selected-window)))
+(add-hook 'emacs-startup-hook #'my/set-window-divider-bg-black)
 
 
 
@@ -720,8 +620,12 @@ as in the claude-code-ide vterm)."
 
 (add-hook 'c++-mode-hook
           (lambda ()
-            ;; M-. in C++ uses ggtags-find-definition (overrides the global sly binding).
-            (local-set-key (kbd "M-.") 'ggtags-find-definition)))
+            ;; Bind M-. in C++ mode to use ggtags-find-definition.
+            (evil-local-set-key 'insert  (kbd "M-.") 'ggtags-find-definition)
+            (evil-local-set-key 'replace (kbd "M-.") 'ggtags-find-definition)
+            (evil-local-set-key 'normal  (kbd "M-.") 'ggtags-find-definition)
+            (evil-local-set-key 'visual  (kbd "M-.") 'ggtags-find-definition)
+            ))
 
 ;; ** Sticky windows
 (load "~/.emacs.d/sticky-windows.el")
@@ -1086,13 +990,21 @@ as in the claude-code-ide vterm)."
 ;; Toggle claude-code side window visibility
 (global-set-key (kbd "C-x /") 'claude-code-ide-menu)
 
-;; Never enable meow in *claude-code* buffers — the claude-code vterm
-;; runs its own keybindings and should not be intercepted by any meow state.
+;; Never enable evil in *claude-code* buffers. `evil-buffer-regexps' is
+;; consulted by `turn-on-evil-mode' (via `evil-initial-state-for-buffer')
+;; before evil-local-mode is activated, so it wins the race against
+;; vterm-mode being in `evil-insert-state-modes'. A nil state means
+;; evil is not turned on at all.
+(with-eval-after-load 'evil
+  (add-to-list 'evil-buffer-regexps '("\\*claude-code" . nil)))
+
+;; Belt-and-suspenders: if anything forces evil on in a claude-code
+;; buffer after the fact, turn it back off.
 (add-hook 'vterm-mode-hook
           (lambda ()
             (when (string-match-p "claude-code" (buffer-name))
-              (when (bound-and-true-p meow-mode)
-                (meow-mode -1)))))
+              (when (bound-and-true-p evil-local-mode)
+                (evil-local-mode -1)))))
 ;;
 ;; Make the clipetty drag-selection automatically copy to the kill ring without needing M-w
 ;;
@@ -1113,16 +1025,3 @@ as in the claude-code-ide vterm)."
       (message "SSH_TTY updated to %s" tty))))
 
 (add-hook 'focus-in-hook #'my/refresh-ssh-tty)
-
-
-(defun my/claude-remember-width ()
-  "Persist current claude-code-ide window width."
-  (when-let* ((win (get-buffer-window
-                    (seq-find (lambda (b)
-                                (string-prefix-p "*claude-code" (buffer-name b)))
-                              (buffer-list)))))
-    (setq claude-code-ide-window-width (window-total-width win))))
-
-(add-hook 'window-size-change-functions
-          (lambda (_frame) (my/claude-remember-width)))
-
