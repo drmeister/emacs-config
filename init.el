@@ -63,14 +63,14 @@
  '(package-selected-packages nil)
  '(package-vc-selected-packages
    '((claude-code-ide :url
-		      "https://github.com/manzaltu/claude-code-ide.el")))
+                      "https://github.com/manzaltu/claude-code-ide.el")))
  '(safe-local-variable-values
    '((Package . USOCKET) (Package . CHUNGA) (sly-load-failed-fasl . ask)
      (package . rune-dom) (Encoding . utf-8) (readtable . runes)
      (Package . CXML) (Package . TRIVIAL-GRAY-STREAMS)
      (Syntax . ANSI-Common-lisp) (Package . ASDF) (package . puri)
      (eval when (fboundp 'c-toggle-comment-style)
-	   (c-toggle-comment-style 1))
+           (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
      (eval c-set-offset 'brace-list-open 0)
      (Package . CLPYTHON.APP.REPL) (Package . CLPYTHON.PARSER)
@@ -90,21 +90,21 @@
      (Syntax . COMMON-LISP) (encoding . utf-8) (Package . LISP-UNIT)
      (Base . 8) (Package . INTL) (Package . make) (Package . Maxima)
      (c-file-offsets (innamespace . 0) (substatement-open . 0)
-		     (c . c-lineup-dont-change) (inextern-lang . 0)
-		     (comment-intro . c-lineup-dont-change)
-		     (arglist-cont-nonempty . c-lineup-arglist)
-		     (block-close . 0) (statement-case-intro . ++)
-		     (brace-list-intro . ++) (cpp-define-intro . +))
+                     (c . c-lineup-dont-change) (inextern-lang . 0)
+                     (comment-intro . c-lineup-dont-change)
+                     (arglist-cont-nonempty . c-lineup-arglist)
+                     (block-close . 0) (statement-case-intro . ++)
+                     (brace-list-intro . ++) (cpp-define-intro . +))
      (c-auto-align-backslashes)
      (c-file-offsets (innamespace . 0) (substatement-open . 0)
-		     (c . c-lineup-dont-change) (inextern-lang . 0)
-		     (comment-intro . c-lineup-dont-change)
-		     (block-close . 0))
+                     (c . c-lineup-dont-change) (inextern-lang . 0)
+                     (comment-intro . c-lineup-dont-change)
+                     (block-close . 0))
      (c-file-offsets (innamespace . 0) (substatement-open . 0)
-		     (c . c-lineup-dont-change) (inextern-lang . 0)
-		     (comment-intro . c-lineup-dont-change)
-		     (arglist-cont-nonempty . llvm-c-lineup-arglist)
-		     (block-close . 0))
+                     (c . c-lineup-dont-change) (inextern-lang . 0)
+                     (comment-intro . c-lineup-dont-change)
+                     (arglist-cont-nonempty . llvm-c-lineup-arglist)
+                     (block-close . 0))
      (Syntax . ANSI-Common-Lisp) (Base . 10) (Package . C)
      (Package . SYSTEM) (Package . CLOS) (Syntax . Common-Lisp)))
  '(show-paren-mode t)
@@ -352,6 +352,14 @@
 (if 1
     (progn
       (evil-mode 1)
+      ;; Exclude slime/sly from evil-collection. Recent evil-collection-slime
+      ;; / -sly install an insert-state RET binding (newline-and-indent) that
+      ;; we couldn't reliably override from init.el, and the base
+      ;; slime-repl-mode-map / sly-mrepl-mode-map already bind RET to the
+      ;; submit function we want.
+      (with-eval-after-load 'evil-collection
+        (setq evil-collection-mode-list
+              (seq-difference evil-collection-mode-list '(slime sly))))
       (evil-collection-init)))
 
 (setq evil-want-fine-undo 'fine)
@@ -430,6 +438,12 @@
   (goto-char (point-max)))
 (add-hook 'shell-mode-hook #'my-shell-goto-eob)
 
+;; Newer evil-collection versions rebind RET in insert state to
+;; newline-and-indent in comint/slime/sly REPL maps and expect submission to
+;; happen in normal state. That conflicts with how we drive these REPLs (we
+;; live in insert state). Force RET to submit in both the base map and evil's
+;; insert/normal state maps so behavior is consistent across evil-collection
+;; versions.
 (with-eval-after-load 'comint
   (define-key comint-mode-map (kbd "RET") 'comint-send-input))
 
