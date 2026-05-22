@@ -552,6 +552,14 @@
 
 (defvar-local my/evil-bg-remap-cookies nil)
 (defvar my/evil-bg-last-buffer nil)
+(defvar-local my/vterm-bg-overlay nil
+  "Buffer-local overlay forcing background color in vterm buffers.
+Needed because vterm's C module bakes the *global* default-face
+background into per-cell `:background' text properties at render
+time, so `face-remap-add-relative' on `default' does not affect
+already-rendered cells. An overlay's face attributes outrank
+text-property face attributes in the display merge order, so this
+is the only reliable way to recolor vterm cells.")
 
 (defun my/clear-evil-bg-remaps ()
   "Remove any buffer-local background remaps applied for Evil state."
@@ -559,13 +567,34 @@
     (mapc #'face-remap-remove-relative my/evil-bg-remap-cookies)
     (setq my/evil-bg-remap-cookies nil)))
 
+(defun my/extend-vterm-bg-overlay (&rest _)
+  "Keep `my/vterm-bg-overlay' covering the whole buffer after changes."
+  (when (overlayp my/vterm-bg-overlay)
+    (move-overlay my/vterm-bg-overlay (point-min) (point-max))))
+
 (defun my/set-buffer-bg-color (color)
   "Apply a buffer-local background COLOR to relevant faces."
   (my/clear-evil-bg-remaps)
   (setq my/evil-bg-remap-cookies
         (mapcar (lambda (face)
                   (face-remap-add-relative face `(:background ,color)))
-                '(default fringe line-number line-number-current-line))))
+                ;; `default' covers regular buffer text and the empty
+                ;; area past end-of-buffer; the rest are for fringes
+                ;; and line numbers.
+                '(default fringe line-number line-number-current-line)))
+  ;; vterm: face-remap on `default' doesn't touch already-rendered
+  ;; cells because they have explicit `:background' text properties.
+  ;; Use a high-priority full-buffer overlay to win the merge.
+  (when (derived-mode-p 'vterm-mode)
+    (unless (overlayp my/vterm-bg-overlay)
+      (setq my/vterm-bg-overlay
+            (make-overlay (point-min) (point-max) nil nil t))
+      (overlay-put my/vterm-bg-overlay 'priority 100)
+      (add-hook 'after-change-functions
+                #'my/extend-vterm-bg-overlay nil t))
+    (move-overlay my/vterm-bg-overlay (point-min) (point-max))
+    (overlay-put my/vterm-bg-overlay 'face
+                 `(:background ,color :extend t))))
 
 (defun my/set-window-divider-bg-black ()
   "Keep window divider faces black globally to avoid color ghosts."
@@ -575,11 +604,10 @@
 
 (defun my/update-evil-window-bg ()
   "Set window background color based on Evil state."
-  (let* ((color (if (eq evil-state 'insert)
-                    "#003000"
-                  (if (eq evil-state 'replace)
-                      "#000030"
-                    "#300000"))))
+  (let ((color (cond ((eq evil-state 'insert)  "#003000")
+                     ((eq evil-state 'replace) "#000030")
+                     ((eq evil-state 'emacs)   "#001a4a")
+                     (t                        "#300000"))))
     (my/set-buffer-bg-color color)))
 
 (defun my/update-evil-bg-for-selected-window ()
@@ -606,11 +634,16 @@
                (my/set-buffer-bg-color "#000000"))))))
      nil t)
 
-    ;; Color the current buffer according to Evil state (compilation stays black)
+    ;; Color the current buffer according to Evil state (compilation stays
+    ;; black; *claude-code* gets dark purple when selected).
     (with-current-buffer curr
-      (if (string-match-p "compilation\\*\\'" (buffer-name))
-          (my/set-buffer-bg-color "#000000")
-        (my/update-evil-window-bg)))))
+      (cond
+       ((string-match-p "compilation\\*\\'" (buffer-name))
+        (my/set-buffer-bg-color "#000000"))
+       ((string-match-p "\\*claude-code" (buffer-name))
+        (my/set-buffer-bg-color "#200040"))
+       (t
+        (my/update-evil-window-bg))))))
 
 ;; Hooks to track Evil mode transitions and window selection
 (if 1
