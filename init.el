@@ -1117,3 +1117,8 @@ is the only reliable way to recolor vterm cells.")
       (message "SSH_TTY updated to %s" tty))))
 
 (add-hook 'focus-in-hook #'my/refresh-ssh-tty)
+
+(add-hook 'sldb-mode-hook
+          (lambda ()
+            (local-set-key (kbd "j") 'next-line)
+            (local-set-key (kbd "k") 'previous-line)))
