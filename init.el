@@ -65,7 +65,7 @@
    '((claude-code-ide :url
                       "https://github.com/manzaltu/claude-code-ide.el")))
  '(safe-local-variable-values
-   '((Package . USOCKET) (Package . CHUNGA) (sly-load-failed-fasl . ask)
+   '((Package . USOCKET) (Package . CHUNGA)
      (package . rune-dom) (Encoding . utf-8) (readtable . runes)
      (Package . CXML) (Package . TRIVIAL-GRAY-STREAMS)
      (Syntax . ANSI-Common-lisp) (Package . ASDF) (package . puri)
@@ -309,25 +309,9 @@
 
 
 
-;;; SLY support
-(when t
-  (add-to-list 'load-path "~/Development/sly")
-  (add-to-list 'load-path "~/Development/sly/contrib")
-  (require 'sly)
-  (print "loading contrib-autoloads")
-;;  (require 'contrib-autoloads)
-  (print "loading sly-fancy")
-  (require 'sly-fancy)
-;;  (require 'sly-stickers)
-  (add-hook 'sly-mode-hook #'sly-stickers-mode)
-  (setq inferior-lisp-program "~/Development/cando/build/boehmprecise/cando")
-  (add-to-list 'sly-contribs 'sly-fancy)
-  )
-
-;;; SLIME support (secondary; SLY remains the primary CL environment).
+;;; SLIME support.
 ;;; Loaded so that `M-x slime' works, but `slime-mode' is NOT added to
-;;; `lisp-mode-hook' — that would conflict with `sly-mode' in .lisp buffers.
-;;; To use SLIME in a buffer, disable sly-mode locally then `M-x slime-mode'.
+;;; `lisp-mode-hook' — that would conflict with the default lisp interaction.
 (when t
   (add-to-list 'load-path "~/Development/slime")
   (add-to-list 'load-path "~/Development/slime/contrib")
@@ -336,8 +320,8 @@
     (message "configuring slime-fancy")
     (slime-setup '(slime-fancy))
     ;; slime-setup adds `slime-lisp-mode-hook' to `lisp-mode-hook', which
-    ;; auto-enables `slime-mode'. Remove it so SLY stays in charge of .lisp
-    ;; buffers. `M-x slime' still starts a SLIME session on demand.
+    ;; auto-enables `slime-mode'. Remove it so .lisp buffers don't get
+    ;; slime-mode automatically. `M-x slime' still starts a session on demand.
     (remove-hook 'lisp-mode-hook 'slime-lisp-mode-hook))
   ;; Pick implementation at `M-x slime' time. First entry is the default
   ;; when invoked with a prefix argument; `C-u M-x slime' lets you choose.
@@ -352,14 +336,13 @@
 (if 1
     (progn
       (evil-mode 1)
-      ;; Exclude slime/sly from evil-collection. Recent evil-collection-slime
-      ;; / -sly install an insert-state RET binding (newline-and-indent) that
+      ;; Exclude slime from evil-collection. Recent evil-collection-slime
+      ;; installs an insert-state RET binding (newline-and-indent) that
       ;; we couldn't reliably override from init.el, and the base
-      ;; slime-repl-mode-map / sly-mrepl-mode-map already bind RET to the
-      ;; submit function we want.
+      ;; slime-repl-mode-map already binds RET to the submit function we want.
       (with-eval-after-load 'evil-collection
         (setq evil-collection-mode-list
-              (seq-difference evil-collection-mode-list '(slime sly))))
+              (seq-difference evil-collection-mode-list '(slime))))
       (evil-collection-init)))
 
 (setq evil-want-fine-undo 'fine)
@@ -375,7 +358,7 @@
 (when nil
   (require 'seq) ;; built-in
 
-  (defvar my/auto-bottom-prefixes '("*ChatGPT*" "*shell*" "*sly-mrepl")
+  (defvar my/auto-bottom-prefixes '("*ChatGPT*" "*shell*")
     "Buffer name prefixes that should jump to the end when entered.")
 
   (defun my/jump-to-bottom-on-enter ()
@@ -400,26 +383,23 @@
     (eobp)))
 
 (defun my-move-repl-point-to-end-on-insert ()
-  "When entering insert in shell or SLY REPL, jump to end of input."
-  (when (and (or (derived-mode-p 'shell-mode)
-                 (derived-mode-p 'sly-mrepl-mode))
+  "When entering insert in shell, jump to end of input."
+  (when (and (derived-mode-p 'shell-mode)
              (not (my-repl-point-in-input-p)))
     (goto-char (point-max))))
 
 (add-hook 'evil-insert-state-entry-hook #'my-move-repl-point-to-end-on-insert)
 
 (defun my-repl-exit-insert-when-not-at-eob ()
-  "In shell/SLY REPL, drop to normal state when leaving input."
-  (when (and (or (derived-mode-p 'shell-mode)
-                 (derived-mode-p 'sly-mrepl-mode))
+  "In shell, drop to normal state when leaving input."
+  (when (and (derived-mode-p 'shell-mode)
              (evil-insert-state-p)
              (not (my-repl-point-in-input-p)))
     (evil-normal-state)))
 
 (defun my-repl-enter-insert-when-at-eob ()
-  "In shell/SLY REPL, enter insert state automatically at end of buffer."
-  (when (and (or (derived-mode-p 'shell-mode)
-                 (derived-mode-p 'sly-mrepl-mode))
+  "In shell, enter insert state automatically at end of buffer."
+  (when (and (derived-mode-p 'shell-mode)
              (not (minibufferp))
              (not (evil-insert-state-p))
              (eobp))
@@ -439,7 +419,7 @@
 (add-hook 'shell-mode-hook #'my-shell-goto-eob)
 
 ;; Newer evil-collection versions rebind RET in insert state to
-;; newline-and-indent in comint/slime/sly REPL maps and expect submission to
+;; newline-and-indent in comint/slime REPL maps and expect submission to
 ;; happen in normal state. That conflicts with how we drive these REPLs (we
 ;; live in insert state). Force RET to submit in both the base map and evil's
 ;; insert/normal state maps so behavior is consistent across evil-collection
@@ -450,8 +430,6 @@
 (with-eval-after-load 'evil
   (evil-define-key 'insert comint-mode-map (kbd "RET") 'comint-send-input)
   (evil-define-key 'normal comint-mode-map (kbd "RET") 'comint-send-input))
-
-(add-hook 'sly-mrepl-mode-hook #'my-enable-repl-insert-guard)
 
 ;;; Turn on dispatch always when M-o is activated
 
@@ -499,14 +477,11 @@
 (evil-global-set-key 'normal  (kbd "C-d") 'evil-delete-char)
 (evil-global-set-key 'visual  (kbd "C-d") 'evil-delete-char)
 
-;; Dispatch M-. based on which CL minor mode is active in the current buffer.
-;; Both SLY and SLIME are loadable; either may be the live one in a given
-;; buffer. SLIME wins if both are somehow on, since SLY is the global default
-;; and SLIME-on usually means the user opted in.
+;; Dispatch M-. to SLIME's definition lookup when slime-mode is active,
+;; otherwise fall back to xref.
 (defun my-edit-definition-dispatch ()
   (interactive)
   (cond ((bound-and-true-p slime-mode) (call-interactively 'slime-edit-definition))
-        ((bound-and-true-p sly-mode)   (call-interactively 'sly-edit-definition))
         (t                             (call-interactively 'xref-find-definitions))))
 
 (evil-global-set-key 'insert  (kbd "M-.") 'my-edit-definition-dispatch)

@@ -42,7 +42,7 @@ A few non-obvious systems are worth understanding before editing:
 
 **claude-code-ide window placement and vterm state** (`use-package claude-code-ide`, ~line 195). The user has deliberately opted out of side-windows (`claude-code-ide-use-side-window nil`) so the Claude buffer is resizable. A `display-buffer-alist` entry matches `"\\*claude-code"` and places the buffer at the bottom (height 0.3). Separately, `vterm-mode` is added to `evil-insert-state-modes` so any vterm starts in evil insert state; `C-c v` toggles `vterm-copy-mode` (drops to normal state for scrolling), and `i` or `q` exits copy mode back to insert.
 
-**SLY, not SLIME**, is the active Common Lisp environment (`init.el` line 313 onward). `inferior-lisp-program` points at a Clasp/Cando build at `~/Development/cando/build/boehmprecise/cando`. The `slime/` submodule and `slime`-related lines exist for legacy reasons but SLY is what's loaded.
+**SLIME** is the Common Lisp environment (`init.el` line 312 onward). It is loaded from `~/Development/slime` with `slime-fancy`. `slime-lisp-mode-hook` is removed from `lisp-mode-hook` so `.lisp` buffers don't auto-enable `slime-mode`; use `M-x slime` to start a session. `slime-lisp-implementations` offers `sbcl` and `cando` (Clasp/Cando build at `~/Development/cando/build/boehmprecise/cando`).
 
 **Custom `package-selected-packages` is `nil`** in init.el (line 63) — this is intentional; do not let Custom write a list back in. The `dot-emacs` file has its own `custom-set-variables` block reflecting an older setup; only the `init.el` block is live.
 
