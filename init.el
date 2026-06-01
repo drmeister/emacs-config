@@ -677,7 +677,7 @@ is the only reliable way to recolor vterm cells.")
   (windmove-default-keybindings))
 
 (when window-system (tool-bar-mode -1))
-(scroll-bar-mode -1)
+(when (boundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (setq line-number-display-limit-width 2000000)
 
 (add-hook 'c-mode-common-hook
