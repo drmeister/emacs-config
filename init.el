@@ -65,10 +65,10 @@
    '((claude-code-ide :url
                       "https://github.com/manzaltu/claude-code-ide.el")))
  '(safe-local-variable-values
-   '((Package . USOCKET) (Package . CHUNGA)
-     (package . rune-dom) (Encoding . utf-8) (readtable . runes)
-     (Package . CXML) (Package . TRIVIAL-GRAY-STREAMS)
-     (Syntax . ANSI-Common-lisp) (Package . ASDF) (package . puri)
+   '((Package . USOCKET) (Package . CHUNGA) (package . rune-dom)
+     (Encoding . utf-8) (readtable . runes) (Package . CXML)
+     (Package . TRIVIAL-GRAY-STREAMS) (Syntax . ANSI-Common-lisp)
+     (Package . ASDF) (package . puri)
      (eval when (fboundp 'c-toggle-comment-style)
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
@@ -248,7 +248,15 @@
 
 (with-eval-after-load 'vterm
   (define-key vterm-copy-mode-map (kbd "i") #'my/vterm-exit-copy-mode)
-  (define-key vterm-copy-mode-map (kbd "q") #'my/vterm-exit-copy-mode))
+  (define-key vterm-copy-mode-map (kbd "q") #'my/vterm-exit-copy-mode)
+  ;; C-l is unbound in vterm-mode-map, so it gets forwarded to the
+  ;; program inside (Claude Code), whose TUI treats C-l as clear-screen
+  ;; -- which looks like everything vanished. Bind it here so Emacs
+  ;; recenters the window instead of sending it to the terminal.
+  (define-key vterm-mode-map (kbd "C-l") #'recenter-top-bottom)
+  ;; Keep a lot more scrollback so there is actually something to
+  ;; scroll back to (default is only 1000 lines). 100000 is vterm's max.
+  (setq vterm-max-scrollback 100000))
 
 (use-package multi-vterm :ensure t)
 
