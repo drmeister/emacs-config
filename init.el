@@ -206,6 +206,13 @@
   ;; kept here because the display-buffer-alist entry below consults
   ;; the same placement intent.
   (claude-code-ide-window-side 'bottom)
+  ;; Don't re-display the Claude side window during ediff — it calls
+  ;; claude-code-ide--display-buffer-in-side-window, which conflicts with our
+  ;; use-side-window=nil + display-buffer-alist setup and can abort ediff startup.
+  (claude-code-ide-show-claude-window-in-ediff nil)
+  ;; ediff setup fails against our dedicated/sticky windows, so skip the
+  ;; in-Emacs diff viewer entirely — diffs render in the terminal/chat.
+  (claude-code-ide-use-ide-diff t)
   :config
   (claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
   ;; Force the Claude Code buffer into a full-width bottom window via
@@ -991,7 +998,7 @@ is the only reliable way to recolor vterm cells.")
 
 (add-hook 'lisp-mode-hook 'my-lisp-mode-customizations)
 
-(defun refresh-ssh-auth-sock ()
+(defun my/refresh-ssh-auth-sock ()
   (interactive)
   (setenv "SSH_AUTH_SOCK" (expand-file-name "~/.ssh/ssh_auth_sock")))
 
