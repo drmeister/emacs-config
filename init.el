@@ -19,6 +19,9 @@
 ;  (setq mouse-sel-mode t)
 ;  )
 
+(let ((amberhome (concat (getenv "HOME") "/Development/amber22/")))
+  (when (file-directory-p amberhome)
+    (setenv "AMBERHOME" amberhome)))
 
 (setenv "PATH"
         (concat
@@ -143,13 +146,15 @@
 
 (add-to-list 'package-archives '( "jcs-elpa" . "https://jcs-emacs.github.io/jcs-elpa/packages/") t)
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages"))
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
-(setq package-archive-priorities '(("melpa"    . 5)
-                                   ("melpa-stable"    . 5)
-                                   ("gnu"    . 5)
-                                   ("jcs-elpa" . 0)))
+(setq package-archive-priorities '(
+                                ("melpa-stable"    . 30)
+                                   ("gnu"    . 20)
+                                   ("jcs-elpa" . 15)
+				("melpa"    . 10)
+))
 
 (package-initialize)
 
@@ -181,7 +186,7 @@
 (use-package bind-key)
 (use-package wgrep)
 (use-package wgrep-ag)
-(use-package magit)
+(use-package magit :ensure t :pin melpa-stable)
 (use-package macrostep)
 (use-package git-timemachine)
 (use-package evil)
@@ -348,17 +353,17 @@
 
 (setq byte-compile-warnings '(cl-functions))
 
-(if 1
-    (progn
-      (evil-mode 1)
-      ;; Exclude slime from evil-collection. Recent evil-collection-slime
-      ;; installs an insert-state RET binding (newline-and-indent) that
-      ;; we couldn't reliably override from init.el, and the base
-      ;; slime-repl-mode-map already binds RET to the submit function we want.
+(progn
+  (evil-mode 1)
+  ;; Exclude slime from evil-collection. Recent evil-collection-slime
+  ;; installs an insert-state RET binding (newline-and-indent) that
+  ;; we couldn't reliably override from init.el, and the base
+  ;; slime-repl-mode-map already binds RET to the submit function we want.
+  (if 0
       (with-eval-after-load 'evil-collection
         (setq evil-collection-mode-list
-              (seq-difference evil-collection-mode-list '(slime))))
-      (evil-collection-init)))
+              (seq-difference evil-collection-mode-list '(slime)))))
+  (evil-collection-init))
 
 (setq evil-want-fine-undo 'fine)
 
@@ -439,12 +444,21 @@
 ;; live in insert state). Force RET to submit in both the base map and evil's
 ;; insert/normal state maps so behavior is consistent across evil-collection
 ;; versions.
+;; Bind both `RET' (terminal/ASCII C-m) and `<return>' (the GUI keysym
+;; the actual Return key sends). Emacs only falls back to translating
+;; <return> -> RET when no <return> binding is found, and evil's
+;; insert-state map binds <return> to `newline' — so a plain
+;; `(kbd "RET")' binding here is shadowed in GUI Emacs.
+;; Also: must wait for `comint' to load (comint-mode-map is only defined
+;; then) and re-apply after evil-collection-comint-setup runs.
 (with-eval-after-load 'comint
-  (define-key comint-mode-map (kbd "RET") 'comint-send-input))
-
-(with-eval-after-load 'evil
-  (evil-define-key 'insert comint-mode-map (kbd "RET") 'comint-send-input)
-  (evil-define-key 'normal comint-mode-map (kbd "RET") 'comint-send-input))
+  (define-key comint-mode-map (kbd "RET") 'comint-send-input)
+  (define-key comint-mode-map (kbd "<return>") 'comint-send-input)
+  (with-eval-after-load 'evil
+    (evil-define-key 'insert comint-mode-map (kbd "RET") 'comint-send-input)
+    (evil-define-key 'insert comint-mode-map (kbd "<return>") 'comint-send-input)
+    (evil-define-key 'normal comint-mode-map (kbd "RET") 'comint-send-input)
+    (evil-define-key 'normal comint-mode-map (kbd "<return>") 'comint-send-input)))
 
 ;;; Turn on dispatch always when M-o is activated
 
@@ -953,9 +967,6 @@ is the only reliable way to recolor vterm cells.")
 (put 'upcase-region 'disabled nil)
 
 
-(setq exec-path (append exec-path '("/usr/local/opt/llvm@14/bin/")))
-
-
 
 ;; Locked mode
 (global-set-key (kbd "C-c l") 'locked-buffer-mode)
@@ -1109,6 +1120,11 @@ is the only reliable way to recolor vterm cells.")
 (add-hook 'focus-in-hook #'my/refresh-ssh-tty)
 
 (add-hook 'sldb-mode-hook
+          (lambda ()
+            (local-set-key (kbd "j") 'next-line)
+            (local-set-key (kbd "k") 'previous-line)))
+
+(add-hook 'slime-inspector-mode-hook
           (lambda ()
             (local-set-key (kbd "j") 'next-line)
             (local-set-key (kbd "k") 'previous-line)))
