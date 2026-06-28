@@ -6,3 +6,9 @@ elpaca/
 transient/
 tree-sitter/
 projectile-bookmarks.eld
+request/
+slime/
+tramp
+tutorial/
+.DS_Store
+projects
