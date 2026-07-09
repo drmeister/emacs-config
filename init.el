@@ -3,6 +3,9 @@
 
 (winner-mode 1)
 
+(define-key input-decode-map "\e[13;2u" [S-return])
+(global-set-key [S-return] (lambda () (interactive) (message "shift-enter!")))
+
 (print "Starting dot_emacs part")
 
 (if (file-exists-p "~/.emacs")
@@ -63,7 +66,7 @@
  '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages nil)
+ '(package-selected-packages '(claude-code-ide))
  '(package-vc-selected-packages
    '((claude-code-ide :url
                       "https://github.com/manzaltu/claude-code-ide.el")))
@@ -349,20 +352,21 @@
         '((sbcl  ("sbcl"))
           (cando ("~/Development/cando/build/boehmprecise/cando")))))
 
+(setq slime-default-lisp 'cando)
 
+;; S-RET evaluates from insert state in the slime REPL, so a form can be
+;; submitted without ESC-ing to normal state first (where plain RET submits).
+;; evil-collection leaves S-<return> unbound in slime-repl-mode-map. Note:
+;; only GUI Emacs (or a terminal with extended key reporting) distinguishes
+;; S-RET from RET.
+(with-eval-after-load 'slime-repl
+  (evil-define-key 'insert slime-repl-mode-map (kbd "S-<return>") 'slime-repl-return)
+  (evil-define-key 'normal slime-repl-mode-map (kbd "S-<return>") 'slime-repl-return))
 
 (setq byte-compile-warnings '(cl-functions))
 
 (progn
   (evil-mode 1)
-  ;; Exclude slime from evil-collection. Recent evil-collection-slime
-  ;; installs an insert-state RET binding (newline-and-indent) that
-  ;; we couldn't reliably override from init.el, and the base
-  ;; slime-repl-mode-map already binds RET to the submit function we want.
-  (if 0
-      (with-eval-after-load 'evil-collection
-        (setq evil-collection-mode-list
-              (seq-difference evil-collection-mode-list '(slime)))))
   (evil-collection-init))
 
 (setq evil-want-fine-undo 'fine)
@@ -1119,12 +1123,3 @@ is the only reliable way to recolor vterm cells.")
 
 (add-hook 'focus-in-hook #'my/refresh-ssh-tty)
 
-(add-hook 'sldb-mode-hook
-          (lambda ()
-            (local-set-key (kbd "j") 'next-line)
-            (local-set-key (kbd "k") 'previous-line)))
-
-(add-hook 'slime-inspector-mode-hook
-          (lambda ()
-            (local-set-key (kbd "j") 'next-line)
-            (local-set-key (kbd "k") 'previous-line)))
