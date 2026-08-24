@@ -28,7 +28,8 @@
 
 (setenv "PATH"
         (concat
-         (concat (getenv "HOME") "/Development/cando/build/boehmprecise:")    ; Need so that *compiliation* works like *shell*
+         ;; Need so that *compiliation* works like *shell*
+         (concat (getenv "HOME") "/Development/cando/build/boehmprecise:")
          "/usr/local/bin:"
          "/usr/bin:"
          "/bin:"
@@ -67,9 +68,6 @@
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
  '(package-selected-packages '(claude-code-ide))
- '(package-vc-selected-packages
-   '((claude-code-ide :url
-                      "https://github.com/manzaltu/claude-code-ide.el")))
  '(safe-local-variable-values
    '((Package . USOCKET) (Package . CHUNGA) (package . rune-dom)
      (Encoding . utf-8) (readtable . runes) (Package . CXML)
@@ -264,11 +262,9 @@
 (with-eval-after-load 'vterm
   (define-key vterm-copy-mode-map (kbd "i") #'my/vterm-exit-copy-mode)
   (define-key vterm-copy-mode-map (kbd "q") #'my/vterm-exit-copy-mode)
-  ;; C-l is unbound in vterm-mode-map, so it gets forwarded to the
-  ;; program inside (Claude Code), whose TUI treats C-l as clear-screen
-  ;; -- which looks like everything vanished. Bind it here so Emacs
-  ;; recenters the window instead of sending it to the terminal.
-  (define-key vterm-mode-map (kbd "C-l") #'recenter-top-bottom)
+  ;; C-l clears the terminal via vterm-clear (redraws the screen; keeps
+  ;; scrollback unless `vterm-clear-scrollback-when-clearing' is set).
+  (define-key vterm-mode-map (kbd "C-l") #'vterm-clear)
   ;; Keep a lot more scrollback so there is actually something to
   ;; scroll back to (default is only 1000 lines). 100000 is vterm's max.
   (setq vterm-max-scrollback 100000))
@@ -1123,3 +1119,13 @@ is the only reliable way to recolor vterm cells.")
 
 (add-hook 'focus-in-hook #'my/refresh-ssh-tty)
 
+;;; ============================================================
+;;; Automatically revert files when they change on disk
+;;; ============================================================
+
+(global-auto-revert-mode 1)
+;; Also refresh Dired and other non-file buffers
+(setq global-auto-revert-non-file-buffers t)
+
+;; Don't announce every revert in the echo area
+(setq auto-revert-verbose nil)
