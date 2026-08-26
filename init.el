@@ -67,7 +67,7 @@
  '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages '(claude-code-ide))
+ '(package-selected-packages '(codex-ide))
  '(safe-local-variable-values
    '((Package . USOCKET) (Package . CHUNGA) (package . rune-dom)
      (Encoding . utf-8) (readtable . runes) (Package . CXML)
@@ -198,44 +198,31 @@
 (use-package evil-terminal-cursor-changer)
 (use-package neotree)
 
-(use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+(use-package codex-ide
+  :vc (:url "https://github.com/dgillis/emacs-codex-ide" :rev :newest)
+  :bind (("C-c C-'" . codex-ide-menu)
+         ("C-x /" . codex-ide-menu))
   :custom
-  ;; Use a regular (splittable, resizable) window instead of a side
-  ;; window. Side windows are non-resizable in Emacs — C-x ^ / C-x }
-  ;; and mouse-drag are disabled on them. This flip makes the Claude
-  ;; Code buffer obey standard window-management commands.
-  (claude-code-ide-use-side-window nil)
-  ;; Open the Claude Code buffer at the bottom spanning the full frame
-  ;; width. Ignored by the package when use-side-window is nil, but
-  ;; kept here because the display-buffer-alist entry below consults
-  ;; the same placement intent.
-  (claude-code-ide-window-side 'bottom)
-  ;; Don't re-display the Claude side window during ediff — it calls
-  ;; claude-code-ide--display-buffer-in-side-window, which conflicts with our
-  ;; use-side-window=nil + display-buffer-alist setup and can abort ediff startup.
-  (claude-code-ide-show-claude-window-in-ediff nil)
-  ;; ediff setup fails against our dedicated/sticky windows, so skip the
-  ;; in-Emacs diff viewer entirely — diffs render in the terminal/chat.
-  (claude-code-ide-use-ide-diff t)
-  :config
-  (claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
-  ;; Force the Claude Code buffer into a full-width bottom window via
-  ;; display-buffer-alist. This runs independently of the package's
-  ;; own placement logic — useful if the `use-side-window = nil` path
-  ;; doesn't on its own put the window where you want it. Match on
-  ;; the buffer-name pattern the package uses ("*claude-code*" and
-  ;; variants like "*claude-code:/path/*"). Using
-  ;; display-buffer-below-selected keeps the window splittable and
-  ;; resizable unlike display-buffer-in-side-window.
-  (add-to-list
-   'display-buffer-alist
-   '("\\*claude-code"
-     (display-buffer-reuse-window display-buffer-at-bottom)
-     (window-height . 0.3))))
+  ;; GUI Emacs does not always inherit the shell PATH. Prefer any Codex
+  ;; already on PATH, then fall back to the CLI bundled with ChatGPT.
+  (codex-ide-cli-path
+   (or (executable-find "codex")
+       (and (file-executable-p "/Applications/ChatGPT.app/Contents/Resources/codex")
+            "/Applications/ChatGPT.app/Contents/Resources/codex")
+       "codex"))
+  ;; Use stable absolute paths for the optional Emacs-awareness bridge; GUI
+  ;; Emacs does not necessarily inherit Homebrew's PATH.
+  (codex-ide-emacs-bridge-python-command "/usr/bin/python3")
+  (codex-ide-emacs-bridge-emacsclient-command "/opt/homebrew/bin/emacsclient")
+  ;; Keep new Codex sessions in a normal, resizable window below the
+  ;; current buffer, matching the previous agent layout.
+  (codex-ide-new-session-split 'horizontal))
+(with-eval-after-load 'codex-ide
+  (define-key codex-ide-session-prompt-minor-mode-map
+              [S-return] #'codex-ide-submit))
 
-;; Claude Code vterm: start in insert mode and disable trailing whitespace display
+
+;; vterm: start in insert mode and disable trailing whitespace display
 (add-to-list 'evil-insert-state-modes 'vterm-mode)
 (add-hook 'vterm-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
 
@@ -255,8 +242,7 @@
 (add-hook 'vterm-mode-hook
           (lambda ()
             (evil-local-set-key 'insert (kbd "C-c v") #'my/vterm-escape-to-copy-mode)
-            ;; Also bind locally (outside evil) so it works in the
-            ;; claude-code-ide vterm where we put evil into emacs-state.
+            ;; Also bind locally so it works outside Evil.
             (local-set-key (kbd "C-c v") #'my/vterm-escape-to-copy-mode)))
 
 (with-eval-after-load 'vterm
@@ -479,8 +465,7 @@
 (evil-global-set-key 'replace (kbd "M-o") 'ace-window)
 (evil-global-set-key 'normal  (kbd "M-o") 'ace-window)
 (evil-global-set-key 'visual  (kbd "M-o") 'ace-window)
-;; Also bind globally (outside evil) so ace-window still works in buffers
-;; where evil is off — e.g. the claude-code-ide vterm.
+;; Also bind globally so ace-window still works in buffers where Evil is off.
 (global-set-key (kbd "M-o") 'ace-window)
 (global-set-key (kbd "C-x o") 'ace-window)
 (global-set-key (kbd "C-x p") 'ace-window)
@@ -639,12 +624,12 @@ is the only reliable way to recolor vterm cells.")
      nil t)
 
     ;; Color the current buffer according to Evil state (compilation stays
-    ;; black; *claude-code* gets dark purple when selected).
+    ;; black; Codex gets dark purple when selected).
     (with-current-buffer curr
       (cond
        ((string-match-p "compilation\\*\\'" (buffer-name))
         (my/set-buffer-bg-color "#000000"))
-       ((string-match-p "\\*claude-code" (buffer-name))
+       ((string-match-p "\\*codex" (buffer-name))
         (my/set-buffer-bg-color "#200040"))
        (t
         (my/update-evil-window-bg))))))
@@ -1057,9 +1042,8 @@ is the only reliable way to recolor vterm cells.")
 
 (define-key lisp-mode-map (kbd "C-c *") #'toggle-let-let*)
 
-;; Prevent transpose-frame from duplicating claude-code-ide windows.
-;; Hide the claude-code window before transposing, restore it after.
-(defun my/transpose-frame-hide-claude ()
+;; Hide side windows before transposing, then restore them.
+(defun my/transpose-frame-hide-side-windows ()
   "Transpose frame, hiding and restoring side windows around transpose-frame."
   (interactive)
   (let ((sides-visible (window-with-parameter 'window-side)))
@@ -1072,32 +1056,12 @@ is the only reliable way to recolor vterm cells.")
 
 (setq window-size-fixed nil)
 
-(add-to-list 'display-buffer-alist
-             '("\\*claude-code"
-               (display-buffer-in-direction)
-               (direction . right)
-               (window-width . 0.3)))
+(global-set-key (kbd "C-x |") 'my/transpose-frame-hide-side-windows)
 
-(global-set-key (kbd "C-x |") 'my/transpose-frame-hide-claude)
-
-;; Toggle claude-code side window visibility
-(global-set-key (kbd "C-x /") 'claude-code-ide-menu)
-
-;; Never enable evil in *claude-code* buffers. `evil-buffer-regexps' is
-;; consulted by `turn-on-evil-mode' (via `evil-initial-state-for-buffer')
-;; before evil-local-mode is activated, so it wins the race against
-;; vterm-mode being in `evil-insert-state-modes'. A nil state means
-;; evil is not turned on at all.
+;; Codex uses a native editable transcript, so keep its session buffers in
+;; standard Emacs state instead of applying global Evil keybindings.
 (with-eval-after-load 'evil
-  (add-to-list 'evil-buffer-regexps '("\\*claude-code" . nil)))
-
-;; Belt-and-suspenders: if anything forces evil on in a claude-code
-;; buffer after the fact, turn it back off.
-(add-hook 'vterm-mode-hook
-          (lambda ()
-            (when (string-match-p "claude-code" (buffer-name))
-              (when (bound-and-true-p evil-local-mode)
-                (evil-local-mode -1)))))
+  (evil-set-initial-state 'codex-ide-session-mode 'emacs))
 ;;
 ;; Make the clipetty drag-selection automatically copy to the kill ring without needing M-w
 ;;
