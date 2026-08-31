@@ -216,6 +216,13 @@
   ;; Emacs does not necessarily inherit Homebrew's PATH.
   (codex-ide-emacs-bridge-python-command "/usr/bin/python3")
   (codex-ide-emacs-bridge-emacsclient-command "/opt/homebrew/bin/emacsclient")
+  ;; Require review before Codex writes files, and surface the complete
+  ;; proposed diff alongside the approval prompt.
+  (codex-ide-sandbox-mode "read-only")
+  (codex-ide-approval-policy "on-request")
+  (codex-ide-buffer-display-when-approval-required t)
+  (codex-ide-diff-auto-display-policy 'approval-only)
+  (codex-ide-diff-inline-fold-threshold 40)
   ;; Keep new Codex sessions in a normal, resizable window below the
   ;; current buffer, matching the previous agent layout.
   (codex-ide-new-session-split 'horizontal))
@@ -1096,3 +1103,18 @@ is the only reliable way to recolor vterm cells.")
 
 ;; Don't announce every revert in the echo area
 (setq auto-revert-verbose nil)
+
+
+(defun my-slime-send-sigusr2 ()
+  "Send SIGUSR2 to the Lisp process associated with this SLIME session."
+  (interactive)
+  (let ((process (slime-process)))
+    (unless (and process (process-live-p process))
+      (user-error "This SLIME connection has no local Lisp process"))
+    (signal-process process 'sigusr2)
+    (message "Sent SIGUSR2 to Lisp process %d" (process-id process))))
+
+(with-eval-after-load 'slime-repl
+  (define-key slime-repl-mode-map
+              (kbd "C-c t")
+              #'my-slime-send-sigusr2))
