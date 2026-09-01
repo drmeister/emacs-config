@@ -228,7 +228,14 @@
   (codex-ide-new-session-split 'horizontal))
 (with-eval-after-load 'codex-ide
   (define-key codex-ide-session-prompt-minor-mode-map
-              [S-return] #'codex-ide-submit))
+              [S-return] #'codex-ide-submit)
+  ;; Match Evil's page-scrolling keys even though Codex sessions use Emacs
+  ;; state.  Bind the prompt minor-mode map too because it takes precedence
+  ;; while point is in the editable prompt.
+  (dolist (map (list codex-ide-session-mode-map
+                     codex-ide-session-prompt-minor-mode-map))
+    (define-key map (kbd "C-f") #'evil-scroll-page-down)
+    (define-key map (kbd "C-b") #'evil-scroll-page-up)))
 ;; Always enable
 (setq codex-ide-want-mcp-bridge t)
 
