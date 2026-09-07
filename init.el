@@ -235,7 +235,12 @@
   (dolist (map (list codex-ide-session-mode-map
                      codex-ide-session-prompt-minor-mode-map))
     (define-key map (kbd "C-f") #'evil-scroll-page-down)
-    (define-key map (kbd "C-b") #'evil-scroll-page-up)))
+    (define-key map (kbd "C-b") #'evil-scroll-page-up))
+  ;; Evil's normal-state RET binding shadows the Codex status-mode binding.
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal codex-ide-status-mode-map
+      (kbd "RET") #'codex-ide-status-mode-display-session-at-point
+      (kbd "<return>") #'codex-ide-status-mode-display-session-at-point)))
 ;; Always enable
 (setq codex-ide-want-mcp-bridge t)
 
