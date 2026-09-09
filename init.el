@@ -67,7 +67,7 @@
  '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages '(codex-ide))
+ '(package-selected-packages '(yasnippet))
  '(package-vc-selected-packages
    '((codex-ide :url "https://github.com/dgillis/emacs-codex-ide")))
  '(safe-local-variable-values
@@ -371,6 +371,8 @@
 
 (progn
   (evil-mode 1)
+  (setq evil-collection-mode-list
+	(remove 'vterm evil-collection-mode-list))
   (evil-collection-init))
 
 (setq evil-want-fine-undo 'fine)
