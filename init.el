@@ -358,14 +358,6 @@
 
 (setq slime-default-lisp 'cando)
 
-;; S-RET evaluates from insert state in the slime REPL, so a form can be
-;; submitted without ESC-ing to normal state first (where plain RET submits).
-;; evil-collection leaves S-<return> unbound in slime-repl-mode-map. Note:
-;; only GUI Emacs (or a terminal with extended key reporting) distinguishes
-;; S-RET from RET.
-(with-eval-after-load 'slime-repl
-  (evil-define-key 'insert slime-repl-mode-map (kbd "S-<return>") 'slime-repl-return)
-  (evil-define-key 'normal slime-repl-mode-map (kbd "S-<return>") 'slime-repl-return))
 
 (setq byte-compile-warnings '(cl-functions))
 
@@ -374,6 +366,31 @@
   (setq evil-collection-mode-list
 	(remove 'vterm evil-collection-mode-list))
   (evil-collection-init))
+
+;; S-RET evaluates from insert state in the slime REPL, so a form can be
+;; submitted without ESC-ing to normal state first (where plain RET submits).
+;; evil-collection leaves S-<return> unbound in slime-repl-mode-map. Note:
+;; only GUI Emacs (or a terminal with extended key reporting) distinguishes
+;; S-RET from RET.
+(defun my/slime-shift-return (&rest _)
+  (evil-define-key '(insert normal) slime-repl-mode-map
+    (kbd "RET")        #'slime-repl-return
+    (kbd "<return>")   #'slime-repl-return
+    (kbd "S-<return>") #'slime-repl-return
+    (kbd "S-RET")      #'slime-repl-return
+    (kbd "C-j")        #'slime-repl-newline-and-indent))
+
+(if nil
+    (progn
+      (defun my/slime-shift-return (&rest _)
+        (evil-define-key '(insert normal) slime-repl-mode-map
+          (kbd "S-<return>") #'slime-repl-return
+          (kbd "S-RET") #'slime-repl-return))))
+
+(with-eval-after-load 'evil-collection-slime
+  (advice-add 'evil-collection-slime-setup :after
+              #'my/slime-shift-return))
+
 
 (setq evil-want-fine-undo 'fine)
 
