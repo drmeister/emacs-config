@@ -212,10 +212,16 @@
        (and (file-executable-p "/Applications/ChatGPT.app/Contents/Resources/codex")
             "/Applications/ChatGPT.app/Contents/Resources/codex")
        "codex"))
-  ;; Use stable absolute paths for the optional Emacs-awareness bridge; GUI
-  ;; Emacs does not necessarily inherit Homebrew's PATH.
+  ;; Locate the optional Emacs-awareness bridge tools on this machine.
+  ;; GUI Emacs does not necessarily inherit Homebrew's PATH.
   (codex-ide-emacs-bridge-python-command "/usr/bin/python3")
-  (codex-ide-emacs-bridge-emacsclient-command "/opt/homebrew/bin/emacsclient")
+  (codex-ide-emacs-bridge-emacsclient-command
+   (or (executable-find "emacsclient")
+       (and invocation-directory
+            (executable-find
+             (expand-file-name "emacsclient" invocation-directory)))
+       (executable-find "/opt/homebrew/bin/emacsclient")
+       "emacsclient"))
   ;; Require review before Codex writes files, and surface the complete
   ;; proposed diff alongside the approval prompt.
   (codex-ide-sandbox-mode "read-only")
@@ -227,6 +233,13 @@
   ;; current buffer, matching the previous agent layout.
   (codex-ide-new-session-split 'horizontal))
 (with-eval-after-load 'codex-ide
+  ;; Return submits the prompt; C-j inserts a newline for multiline input.
+  (define-key codex-ide-session-prompt-minor-mode-map
+              (kbd "RET") #'codex-ide-submit)
+  (define-key codex-ide-session-prompt-minor-mode-map
+              (kbd "<return>") #'codex-ide-submit)
+  (define-key codex-ide-session-prompt-minor-mode-map
+              (kbd "C-j") #'newline)
   (define-key codex-ide-session-prompt-minor-mode-map
               [S-return] #'codex-ide-submit)
   ;; Match Evil's page-scrolling keys even though Codex sessions use Emacs
@@ -702,11 +715,6 @@ is the only reliable way to recolor vterm cells.")
 (add-to-list 'auto-mode-alist '("\\(/\\|\\`\\)[Mm]akefile" . makefile-mode))
 
 (setenv "CLASP_SBCL" "sbcl")
-(setenv "EXTERNALS_CLASP_DIR" "/Users/meister/Development/externals-clasp")
-(setenv "CANDO_LISP_SOURCE_DIR" "/Users/meister/Development/clasp/projects/cando/src")
-(setenv "CLASP_APP_DIR" "/Users/meister/.local/clasp")
-
-
 
 
 ;; ** Custom key bindings
