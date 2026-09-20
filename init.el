@@ -1,3 +1,15 @@
+;;; -*- lexical-binding: nil; -*-
+
+
+(require 'warnings)
+
+;; Suppress missing-binding declarations in these external libraries.
+(dolist (file '("~/.emacs.d/sticky-windows.el"
+                "~/.emacs.d/git-link.el"
+                "~/.emacs.d/clang-format.el"))
+  (add-to-list 'warning-suppress-log-types
+               (list 'files 'missing-lexbind-cookie file)))
+
 ;; Configuration file
 ;; Set up environment variables
 
@@ -67,7 +79,7 @@
  '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages nil)
+ '(package-selected-packages '(codex-ide))
  '(package-vc-selected-packages
    '((codex-ide :url
                 "https://github.com/clasp-developers/emacs-codex-ide")))
@@ -235,6 +247,8 @@
   ;; current buffer, matching the previous agent layout.
   (codex-ide-new-session-split 'horizontal))
 (with-eval-after-load 'codex-ide
+  ;; Load the command used by the wheel bindings below.
+  (require 'mwheel)
   ;; Return submits the prompt; C-j inserts a newline for multiline input.
   (define-key codex-ide-session-prompt-minor-mode-map
               (kbd "RET") #'codex-ide-submit)
@@ -250,7 +264,10 @@
   (dolist (map (list codex-ide-session-mode-map
                      codex-ide-session-prompt-minor-mode-map))
     (define-key map (kbd "C-f") #'evil-scroll-page-down)
-    (define-key map (kbd "C-b") #'evil-scroll-page-up))
+    (define-key map (kbd "C-b") #'evil-scroll-page-up)
+    ;; Handle wheel events in both the transcript and editable prompt.
+    (define-key map [wheel-up] #'mwheel-scroll)
+    (define-key map [wheel-down] #'mwheel-scroll))
   ;; Evil's normal-state RET binding shadows the Codex status-mode binding.
   (with-eval-after-load 'evil
     (evil-define-key 'normal codex-ide-status-mode-map
