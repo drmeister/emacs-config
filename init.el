@@ -79,7 +79,13 @@
  '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages '(codex-ide))
+ '(package-selected-packages
+   '(ace-window ag claude-code-ide clipetty codex-ide csv-mode
+                evil-collection evil-terminal-cursor-changer free-keys
+                git-timemachine macrostep magit math-preview
+                multi-vterm neotree projectile rainbow-delimiters
+                rust-mode symbol-overlay transpose-frame wgrep-ag
+                yasnippet))
  '(package-vc-selected-packages
    '((codex-ide :url
                 "https://github.com/clasp-developers/emacs-codex-ide")))
