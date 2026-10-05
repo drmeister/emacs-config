@@ -12,3 +12,5 @@ tramp
 tutorial/
 .DS_Store
 projects
+package-backups/*
+projectile-frecency.eld
