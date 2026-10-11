@@ -79,13 +79,7 @@
  '(evil-want-keybinding nil)
  '(gdb-non-stop-setting nil)
  '(magit-pull-arguments nil)
- '(package-selected-packages
-   '(ace-window ag claude-code-ide clipetty codex-ide csv-mode
-                evil-collection evil-terminal-cursor-changer free-keys
-                git-timemachine macrostep magit math-preview
-                multi-vterm neotree projectile rainbow-delimiters
-                rust-mode symbol-overlay transpose-frame wgrep-ag
-                yasnippet))
+ '(package-selected-packages nil)
  '(package-vc-selected-packages
    '((codex-ide :url
                 "https://github.com/clasp-developers/emacs-codex-ide")))
@@ -155,20 +149,16 @@
 
 (print "Starting init.el")
 
-;;; use-package macro bootstrapping
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-(eval-when-compile
-  (require 'use-package))
 
 ;;; Configure use-package
 ;;;
 ;;; package initialization
 
+(require 'package)
 (add-to-list 'package-archives '( "jcs-elpa" . "https://jcs-emacs.github.io/jcs-elpa/packages/") t)
-(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+;; Replace the default entry so reloading also updates its URL.
+(setf (alist-get "gnu" package-archives nil nil #'equal)
+      "https://elpa.gnu.org/packages/")
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
@@ -185,7 +175,28 @@
 
 (setq package-install-upgrade-built-in t)
 
+;; Compat is supplied by GNU ELPA.  Refresh before installing when its
+;; index is missing or stale, even if other archives are already cached.
+;; Magit and Transient need Compat 31, including on Emacs 30.
+(unless (package-installed-p 'compat '(31 0))
+  (package-refresh-contents)
+  (let ((compat-package (cadr (assq 'compat package-archive-contents))))
+    (unless (and compat-package
+                 (version-list-<= '(31 0)
+                                  (package-desc-version compat-package)))
+      (error "Compat 31 is unavailable; check connectivity to GNU ELPA"))
+    (package-install compat-package)))
 
+(require 'compat)
+
+;;; use-package macro bootstrapping (after configuring the archives)
+(unless (package-installed-p 'use-package)
+  (unless package-archive-contents
+    (package-refresh-contents))
+  (package-install 'use-package))
+
+(eval-and-compile
+  (require 'use-package))
 
 (setq-default use-package-always-ensure t)
 
